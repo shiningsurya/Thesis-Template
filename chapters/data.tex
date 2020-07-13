@@ -1,0 +1,146 @@
+\chapter{VLITE-Fast Pathfinder Survey}
+\label{ch:data}
+
+\par This chapter summaries the entirity of the data collected in numerous runs of the \vf system, and follows it up careful statistical analysis. All triggers from known sources are summarized.
+
+
+\section {Campaign runs}
+
+\par \vfpfs consists of data collected over multiple settings. 
+Any campaign run is characterized by the type of filterbank data used and the kind of trigger cuts used. This characterization breaks the whole of \vfpfs into multiple fragments. Each fragment is summarized separately in the respective sub-sections. 
+
+\par Firstly, all the campaign runs are enumerated and discussed in brief before delving into the details in respective sub-sections.
+\begin{description}
+	\item[NBIT = 2 (NB2)] \\
+		This was the first run of \vfpfs system. All the filterbank data was set to $2$ bits to test the computational capabilities of the pipeline. Conservative trigger cuts were employed for the same reason.
+	\item[NBIT = 8 (NB8)] \\
+		The filterbank data bit depth was increased to $8$ in this run. The trigger cuts were the same as before.
+	\item[Max Warp (MW)] \\
+		The trigger cuts were drastically changed to the most aggressive possible. 
+\end{description}
+
+The key features are summarized in ~\autoref{tab:campaigns}.
+
+\begin{table}
+	\caption{Salient features of all the campaign rules involved in \vfpfs.}
+	\label{tab:campaigns}
+\end{table}
+
+\subsection {NB2}
+
+\par In an epoch from \texttt{2019-10-17} to \texttt{2019-12-05} spanning for $49$ days, \vf was onsky for $27.05$ days. 
+This resulted in capturing $10\ 573$ triggers, yielding a trigger rate of $13\ {\rm hr}^{-1}$. The uptime achieved in this was $55.2\%$.
+
+\par The main features of this run was that the data was digitized to \nbit{2} hence the name. Moreover, this was the pilot run for the \vf system.
+The trigger cuts were as follows:
+
+\par This run didn't have the \dbson trigger mechanics in place. Instead, for every trigger \fbson~ files were written to disks at all the antennas including the coadded antenna as well.
+
+\subsection {NB8}
+
+\par In an epoch from from \texttt{2019-12-10} to \texttt{2020-01-20}spanning $40$ days, \vf was onsky for $16.67$ days.
+
+\subsection {MW}
+
+
+\section {Detection of pulsars}
+
+\par A large onsky time yields many serendiptious triggers caused by pulsars. These detections are summarized here.
+
+\begin{table}
+\caption {Observed pulsars}
+\end{table}
+
+\subsection{Field of View}
+
+\par It is worthwhile to understand the spatial extent over which the \psr{J1752} (from now on dm50) has been detected. 
+This exercise would help us understand how large of a field-of-view \vf posses.
+See ~\autoref{fig:dm50_fov}. 
+\begin{figure}
+	\label{fig:dm50_fov}
+	\caption{Large FOV of \vf understood using \psr{J1752} as a marker. 
+	Dots represent the pointings where triggers from the pulsars were recorded.
+	Numbers next to the dots represent fraction of the total number of triggers detected at the pointing.
+}
+\end{figure}
+
+\section {RFI}
+
+\par One of the major challenges any radio observatory faces is that of Radio Frequency Interference (RFI). 
+These are spurious radio signals of human origin polluting the frequency band of interest. In a search pipeline such as \vf, 
+RFI causes large number of triggers which tax the pipeline. 
+One of the main reasons for \vf pipeline failing from time to time is the lag caused by serving many spurious triggers because of RFI.
+Naturally, with the triggers collected so far, a strategy can be devised to understand the triggers caused by RFI and mitigate them realtime.
+This is described in~\autoref{ssub:rfim}. \vfpfs also observed recurring RFI which produces a distinct feature in the \dm~ distribution. This artifact is discussed in~\autoref{ssub:dm150}.
+
+\subsection {RFI mitigation}
+\label{ssub:rfim}
+
+\subsection {\DM{150} artifact}
+\label{ssub:dm150}
+
+\par Short time RFI in a single frequency channel does not produce spurious triggers since bandpass normalization on the time windown containing the RFI cancels its intensity. 
+However, when there is short time RFI in separate channels, it is a different story. 
+If such a short time RFI is coincident in time, any search pipeline would register it as a \DM{0} signal and can be filtered out easily.
+But, if the same RFI has a time offset between the frequency channels, it causes the same search pipeline to register spurious triggers and are much more difficult to excise.
+
+\par In a short time RFI only exisiting in specific frequency channels having time offset between the channels, behaves like a dispersed signal. And when the filterbank is de-dispersed for that \dm which aligns the short time RFI, the excess power causes triggers. 
+
+\par The same is observed in \vfpfs which causes triggers at a range of \dm~s centered around \DM{150}, hence the name. See the de-dispersed filterbank and frequency averaged profile in~\autoref{fig:rfidm150}.
+
+\begin{figure}
+	\label{fig:rfidm150}
+	\caption{}
+\end{figure}
+
+\section {Heimdall triband structure}
+\par A complete statistical analysis of all the triggers also uncovered the extent of capability of Heimdall in its \dm-width trials.
+See~\autoref{fig:triheimdall} which is expected to be uniform in the \dm-width parameter space. 
+However, for large \dm~s, Heimdall employs a time averaging window (known as tscrunching) which reduces the sensitivity in the width. 
+This is captured by the quantization seen in the width space for large \dm.
+
+\par Heimdall performs the tscrunching operation by default. 
+This operation is a feature of the underlying de-dispersion code called \textt{dedisp}(~\cite{dedisp}) which is used by Heimdall. 
+For large \dm, the in-channel smearing (introduced in~\autoref{sssub:dd}) is very high and at times exceeds the sampling time. In such a case, time averaging is performed which increases the sampling rate and the in-channel smearing is kept less than the sampling time.
+If the in channel smearing is much more than the sampling time, the signal is lost. Any amount of de-dispersion would not bring out the signal.
+
+\par In all the runs so far, the \texttt{adaptive\_dt} was enabled. 
+An effect of this feature is that for weak \sn, large \dm signals if the width is not near any of the quantized widths, the matched filtering would not boost the signal causing it to be passed as non-detection.
+
+\par An artifact of this is seen in excess triggers registered at specific \dm~s beyond which tscrunching is performed prior to searching.
+These \dm~s are found to be \DM{347.165} and \DM{790.695} for which the in-channel smearings at highest, lowest and central frequencies are tabulated at~\autoref{tab:dmsmearing}.
+
+\begin{table}
+	\label{tab:dmsmearing}
+	\caption{In-channel smearing at \dm~s where tscrunching is activated for the lowest and highest frequency channels. The sampling time is $781.25\ \mu$s and frequency channel width is $655.255$kHz.}
+	% Please add the following required packages to your document preamble:
+	% \usepackage{multirow}
+	\begin{table}[]
+		\begin{tabular}{llll}
+			DM (pc/cc)               & Frequency (Mhz) & Smearing (ms) & Time units \\
+			\multirow{3}{*}{347.165} & 361.941         & 19.9          & 25         \\
+															 & 340.973         & 23.8          & 30         \\
+															 & 320             & 28.8          & 36         \\
+			\multirow{3}{*}{790.695} & 361.941         & 45.3          & 58         \\
+															 & 340.973         & 54.2          & 69         \\
+															 & 320             & 65.6          & 84        
+		\end{tabular}
+		\end{table}
+\end{table}
+
+\begin{figure}
+	\label{fig:triheimdall}
+	\caption{\dm-Width space of all the Heimdall triggers. Although the maximum width is set to $100$ ms, this plot only extends until $20$ ms.
+		This space is expected to be uniform.
+	}
+\end{figure}
+
+\begin{figure}
+	\label{fig:histdm}
+	\caption{Histogram of \dm of all the triggers recorded.}
+\end{figure}
+
+\par total uptime, sky coverage, number of candidates
+\par that distribution
+
+
