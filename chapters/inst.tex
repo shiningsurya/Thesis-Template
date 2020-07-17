@@ -79,7 +79,7 @@ From here on, coadder refers to the component of the \vf which performs coadditi
 In short, the coadder performs, \emph{read-coadd-write} operation in every iteration.
 
 \subsection {Need for coaddition}
-\label{subs:needcoaddition}
+\label{ssub:needcoaddition}
 \par By the Central Limit Theorem, the distribution of the mean of independent identically distributed (iid) random variables is a Gaussian distribution with mean as the population mean and standard deviation (from here on, \sd) as population \sd divided by $\sqrt{N}$.
 The reduction of the \sd means the overall noise has been suppressed to some extent and this proves to be very helpful in any data analysis setting. The extent of the attentuation of noise is determined by the sample size.
 
@@ -192,12 +192,32 @@ it was observed that occasionally the the time required would shoot to impossibl
 \section {Heimdall}
 
 \par The search program employed by \vf is Heimdall(~\cite{heimdall}). 
-Heimdall is a GPU based search program which performs multiple de-dispersion trials and tophat matched filtering to identify dispersed signals in the data.
+Heimdall is a Graphical Processing Unit (GPU) based search program which performs multiple de-dispersion trials and tophat matched filtering to identify dispersed signals in the data.
+GPUs are needed de-dispersion is extremely computationally intensive operation. 
+Heimdall internally uses \texttt{dedisp} (~\cite{dedisp}) for de-dispersion.
+Tophat matched filtering helps to boost signals. Lastly, normalization of the time series prior to searching regularizes the data.
+A simplified algorithm is written in~\autoref{algo:heimdall}. 
+Heimdall in reality is much more sophisticated and performs channel masking, and Radio Frequency Interference (RFI) excision. Interested readers are encouraged to read~\cite{heimdall}.
+
+\par Heimdall reads from the \dada~buffer to which coadder writes the coadded data stream. 
+It reads a gulp size of data at a time (a parameter optimized, set to $24$ seconds) and performs multiple
+\dm-width trials, if the peaks in the resulting de-dispersed, matched-filtered time series data is significant and over a threshold, 
+a candidate is registered at that particular \dm~,width, and epoch.
+Heimdall sends out these candidates over to Python server running on the login node from where it is suitably acted upon (discussed in the following sections). 
+Additionally, Heimdall also writes out the candidates to a candidate file. See~\autoref{ssub:candfile}.
 
 \begin{algorithm}
+	\label{algo:heimdall}
+	\foreach dm in {2..1000} \do
+		\foreach iwid in {1..6} \do
+			 de\_disperse (dm) ->
+			 matched\_filter ($2^{\rm iwid}$) ->
+			 normalize ->
+			 search
+		\endfor
+	\endfor
 \end{algorithm}
 
-\par Heimdall sends out candidates over to Python server running on the login node where it is read and suitable dispatch is applied and 
 
 
 \section {Trigger mechanics}
@@ -209,7 +229,9 @@ There are two types of triggers:
 	\item Voltage trigger
 	\item DBSON trigger
 \end{enumerate}
-Voltage trigger, as the name implies, triggers raw baseband voltage data. And, \dbson trigger generates a \dbson file for every trigger. The course of action varies depending on the type of trigger. Each trigger has its own distinct multicast group.
+Voltage trigger, as the name implies, triggers raw baseband voltage data. And, \dbson trigger generates a \dbson file for every trigger. The course of action varies depending on the type of trigger. 
+\dbson trigger is treated as the default. If a candidate is to be triggered, then it will \emph{always} have a \dbson trigger.
+Each trigger has its own distinct multicast group which makes distinction and follow up action simple and well separated.
 
 \par The underlying \struct which is passed around is the same for both the triggers. \autoref{struct:trigger} shows the struct definition. 
 \begin{table}
@@ -232,19 +254,36 @@ Voltage trigger, as the name implies, triggers raw baseband voltage data. And, \
 \subsection {Trigger dispatch}
 
 \par Heimdall in addition to writing candidate files, also sends candidate data over to server which is called the trigger dispatch. 
-The purpose of trigger dispatch is to receive candidates, apply various candidate selection logics, and multicasts triggers over to nodes. 
+The purpose of trigger dispatch is to receive candidates, apply various candidate selection logics, and multicasts triggers over to the compute nodes. 
+Trigger dispatch is written purely in Python.
 
-\par Each selection rule consists of cuts on \sn, \dm, and \wd. In practise, multiple rules are used simultaneously. Moreover, special notch filters to target some pulsars signals are also applied. The type of selection rules used and the triggers received are discussed in great detail in \autoref{ch:data}. Hence, only a simple example of a rule is provided here:
-\begin{equation*}
-	\sfrac{S}{N} &\geq 8 \\
-	DM &\geq 50 {\rm\ pc/cc} \\
-	{\rm Width} &\leq 100 {\rm\ ms} \\
-\end{equation*}
+\par Each selection rule consists of cuts on \sn, \dm, and \wd. In practise, multiple rules are used simultaneously. Moreover, special notch filters to target pulses from pulsars are also applied. 
+The type of selection rules used and the triggers received are discussed in great detail in \autoref{ch:data}. Hence, only a simple example of a rule is provided here:
+\begin{align*}
+	{\rm S/N} &\geq 8 \\
+	{\rm DM} &\geq 50 {\rm\ pc/cc} \\
+	{\rm Width} &\leq 100 {\rm\ ms}
+\end{align*}
 
-\par By default, trigger dispatch only sends out \dbson triggers. More stringent set of rules is applied and voltage trigger is dispatched if and only if the trigger qualifies. The reason being SSD space required for voltages is much much more than that required for \dbson~s. 
-A typical rule for a \dbson trigger to also be a voltage trigger is a simple \sn cut, $\sfrac{S}{N} \geq 25$. Such a simple rule allows for any serendiptious voltage triggering on strong triggers.
+\par By default, trigger dispatch only sends out \dbson triggers. More stringent set of rules is applied in case of voltage triggers. 
+The reason being SSD space required for voltages is much much more than that required for \dbson~s. 
+A typical rule for a \dbson trigger to also be a voltage trigger is a simple cut as, \sn $\geq 25$. Such a simple rule allows for any serendiptious voltage triggering on strong triggers.
 
-\par Trigger dispatch is written purely in Python.
+\subsubsection {Throttling}
+\label{sssub:rfim}
+\par Dispatching all the triggers received may sometimes overload the pipeline, cause lags, and may ultimately fail the pipeline.
+Hence, a suitable trigger throttling mechanism is put in place.
+Trigger rate may skyrocket for a multitude of reasons. It may be so whenever a bright radio pulsar in in the field-of-view (FOV) of \vf.
+It may also be when Radio Frequency Interference (RFI) is strong, causing a large number of spurious triggers.
+Given the frequency band of operation ($320|384$ MHz) being not just close to walky-talkies used by on-site engineers but also being close to MUOS band, \vf~is more suspectible to RFI.
+Presence and effects of RFI is discussed more in detail in~\autoref{sec:RFI}. 
+Here, only the instrumentation part of the throttling is described.
+
+\par Heimdall performs searches in batches. All the candidates from a batch are sent at once after the batch has been processed.
+Throttling is done at a sub-batch level. A typical batch size is $30720$ samples ($\sim 24$ seconds) and the sub-batch is $8$ seconds.
+Using the metrics defined and discussed in~\autoref{sec:RFI}, a sub-batch is vetted and subsequently dispatched.
+Throttling is performed on a sub-batch and not on a batch level since a batch lasts long, doing over a sub-batch offers finer control and instanteneous response.
+Moreover, $8$ is also the dispersion delay for the highest \dm~ searched for.
 
 \subsection {Trigger hook}
 
@@ -260,10 +299,38 @@ Then, for a trigger received, with some pointer arithmetic, a slice of filterban
 
 \subsection {Trigger master}
 
-\par Reading from the buffer to which Trigger Hook has written the sliced filterbank along with trigger information, Trigger master performs the 
+\par Reading from the buffer to which Trigger Hook has written the sliced filterbank along with trigger information, Trigger master performs the following:
+\begin{itemize}
+	\item Generating: 
+		\begin{itemize}
+			\item De-dispersed filterbank binary JSON (\dbson, see~\autoref{ssub:dbson})
+			\item Trigger plot (see~\autoref{ssub:tp})
+		\end{itemize}
+	\item Machine learning (ML) based classification of the trigger and baseband triggering.
+\end{itemize}
+
+\par The following only discuss the generation of \dbson~and trigger plot. 
+The entirity of classification is discussed in great detail in~\autoref{chap:ml}.
+Firstly, the bowtie plane is introduced. And
+
+\par The bowtie plane is computed using the Fast De-dispersion Measure Technique (FDMT,~\cite{fdmt}).
+The low frequency introduces large delays which make the FDMT algorithm extremely slow. 
+Hence, prior to FDMT, the data is first incoherently de-dispersed to first \dm and then FDMT is applied.
+
+\begin{figure}
+	\label{fig:bt}
+	\caption{Bowtie plane. \sn as a function of \dm and time. 
+	It is called a bowtie plane since a true dispersed signal produces a bowtie.
+	Insets are the frequency averaged integrated profiles at different \dm~s.
+}
+\end{figure}
+
+\begin{figure}
+	\label{fig:dd}
+	\caption{Left: Dispersed filterbank. Right: De-dispersed filterbank.}
+\end{figure}
 
 \subsection {Meta response}
-
 \par For every voltage trigger issued, a variety of meta data has to be packaged to do any kind of analysis with the voltage data. 
 This job is performed by Meta response. Meta data involves the following:
 \begin{enumerate}
@@ -280,6 +347,7 @@ For a voltage trigger, it outputs a \textt{metar} file as described in~\autoref{
 \section {Data products}
 \par This section defines all the data products of the pipeline. 
 \subsection {Candidate file}
+\label{ssub:candfile}
 \par A candidate file consists of tab-separated values. Every new line has either two fields or nine fields. 
 The definition of the file is given in~\autoref{tab:candfile}.
 % Please add the following required packages to your document preamble:
@@ -343,9 +411,11 @@ The definition of the file is given in~\autoref{tab:candfile}.
 The schema is defined in~\autoref{tab:ubson}. 
 \par This data product is no longer in use since the trigger processing is currently done in realtime.
 \subsection {De-dispersed filterBank jSON}
+\label{ssub:dbson}
 \par De-dispersed filterbank jSON (\dbson) is an Universal Binary JSON~\cite{ubjson} containing de-dispersed filterbank and bowtie plane digitized to \uchar.
 The schema is defined in~\autoref{tab:ubson}.
 \subsection {Trigger plot}
+\label{ssub:tp}
 \par Trigger plot is a diagnostic plot generated for every trigger. 
 It is saved in Portable Networks Graphics (PNG,~\cite{png}) format and rendered used PGPLOT~\cite{pgplot} library.
 

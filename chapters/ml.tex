@@ -1,14 +1,42 @@
 \chapter{Machine Learnings}
 \label{ch:ml}
 
-\par This chapter describes the Machine Learning (ML) / Artificial Intelligence (AI) system in the \vf which identifies triggers worthy of a closer look. 
+\par This chapter describes the Machine Learning (ML) / Artificial Intelligence (AI) system in the \vf which identifies triggers worthy of a closer look. First and foremost, the motivation is discussed in~\autoref{sec:coh}.
+The ML model is introduced and described in~\autoref{sec:ml}. 
+Lastly, the newly \emph{learnt} ML model is applied to the whole of \vfpfs and results are examined in~\autoref{sec:ml_vfps}.
 
 \section {Coherent analysis}
+\label{sec:coh}
 
-\section {Feature engineering}
+\par \vf operates on an \emph{incoherent} level. In all of the pipeline, only the power is considered.
+There is no phase considered anywhere. This lack of phase greatly simplifies the pipeline design but comes at a cost.
+Hence the name, \emph{incoherent}.
 
+\par For an array of $N$ antennas, co-addition in \emph{incoherent} (see~\autoref{ssub:needcoaddition}) only boosts the signal (or specifically, the signal-to-noise, \sn) by $\sqrt{N}$. 
+An \emph{coherent} analysis would boost the \sn~by $N$.
+
+\par In addition to the \sn~boost, a \emph{coherent} analysis would also provide good localization capability.
+This localization ability is of great value since \frb~s are known to be originating from outside the galaxy by which small angular variations could lead to astronomically large separated distances due to large radii.
+
+\subsection{Coherent analysis with \vf}
+
+\par In order to be able to do \emph{coherent} analysis, voltage data has to be recorded. 
+A second of raw voltage data consisting of two polarization measures about $250$ MB. 
+A typical \vf compute node has $450$ GB of dedicated Solid State Disk (SSD). Meaning, a \vf compute can only have $1800$ s (or $30$ minutes) of raw voltage data before getting filled.
+Given the extremely large volume of voltage data, it is impractical to record voltages all the time.
+Hence, \vf performs searches \emph{incoherently} and triggers voltages for a coherent follow-up analysis.
+
+\par It is also not practical to trigger voltages on all the triggers. It would be so as if voltages are recorded all the time since the trigger rates are high.
+So only a subset of the triggers received are to be allowed to trigger voltages. 
+Naturally, such a subset has to be selected on the basis of the signal's merit of being a real signal of astrophysical origin.
+The question of how to decide what triggers to trigger on is the main goal of this chapter.
 
 \section {ML models}
+\label{sec:ml}
 
 
-\section {Results}
+\section {Applying ML to VFPS}
+\label{sec:ml_vfps}
+
+\par Having the newly \emph{learnt} set of AI models, a retrospect analysis of all the triggers part of \vfpfs is performed to uncover any previously missed triggers.
+Results are 
