@@ -9,9 +9,9 @@
 
 % Switch this line to the final option when submitting your thesis.
 % This will correct counts and remove labels that are shown during draft mode
-\documentclass[masters,draft]{UTRGVthesis}
+%\documentclass[masters,draft]{UTRGVthesis}
+\documentclass[masters,final]{UTRGVthesis}
 %\documentclass[phd,draft]{UTRGVthesis}
-%\documentclass[masters,final]{UTRGVthesis}
 %\documentclass[masters,final, nodedication, noacknowledgments]{UTRGVthesis}
 
 
@@ -25,6 +25,7 @@
 \usepackage[colorlinks=false]{hyperref}  % for urls
 \usepackage{showkeys} % shows labels during draft mode
 \usepackage{xfrac}
+\usepackage{multirow}
 %\usepackage[document]{ragged2e} % uncomment for non-justified text
 
 
@@ -84,7 +85,7 @@
 % generated.  Specify the "final" option in the \documentclass to update the
 % counts to the correct values.
 \Abstract{%
-	The VLITE (VLA Low Band Ionosphere and Transient Experiment; http://vlite.nrao.edu) program performs commensal observations using 16 antennas of the Very Large Array radio telescope from 320-384 MHz. The VLITE-Fast program searches for short time-scale (<1s) transients in real time and triggers recording of baseband voltages for offline imaging. Searches are made possible by a 12 node cluster, each housing GPUs for digital signal processing. A real-time MPI-based coadder incoherently sums the data streams from all the antennas and the coadded stream is fed to Heimdall for dedispersion and transient searching. This search yields many candidates, most of which are not astrophysical in nature. In order to respond swiftly and correctly to interesting transients, and to keep data rates manageable, candidates are classified with a convolutional neural network.  This work presents results from more than 64 days of observations, during which many single pulses from pulsars have been captured. The deep learning approach to classification proves particularly powerful in identifying such pulses. The continuing mission of this pipeline to be on sky as much as possible and detect all types of transients. 
+	The VLITE (VLA Low Band Ionosphere and Transient Experiment; http://vlite.nrao.edu) program performs commensal observations using 16 antennas of the Very Large Array radio telescope from 320-384 MHz. The VLITE-Fast program searches for short time-scale (<100ms) transients, such as Fast Radio Bursts (FRBs), in real time and triggers recording of baseband voltages for offline imaging. Searches are made possible by a 12 node cluster, each housing GPUs for digital signal processing. A real-time Message Passing Interface (MPI)-based co-adder incoherently sums the data streams from all the antennas to boost the signal-to-noise. To undo the dispersion effects of signal propagation through the ionized interstellar medium, the co-added stream is de-dispersed and matched-filtered to search for transients. This operation is completely performed on GPUs by the software package Heimdall . A selection logic is applied to the candidates and interesting candidates with their corresponding data are processed and packaged in a binary file along with a diagnostic plot. Furthermore, a Machine Learning classification is developed and applied on the reduced data product and, based on its decision, baseband voltages are recorded.  Reduced data products collected over 126 days of on-sky operation form the VLITE-Fast Pathfinder Survey (VFPS). This pipeline has triggered on single pulses from 7 known radio pulsars. Lastly, the pipeline capabilities are tested against pure random noise and simulated injected signals. 
 }
 
 
@@ -109,6 +110,11 @@
 	no
 }
 
+% Graphics path
+\graphicspath{{figures/}}
+
+% bibliography
+\bibliography{bibs/allbibs.bib}
 
 
 \begin{document}

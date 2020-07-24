@@ -436,8 +436,8 @@ A typical trigger plot for a known pulsar trigger is given in~\autoref{fig:tp}.
 \begin{table}[]
 	\label{tab:metar}
 	\caption{Schema for Meta dumped for every voltage trigger.}
-	\begin{tabular}{lll}
-		Type                     & Parameter      & Comments                                                                                                               \\
+	\begin{tabular}{lll} \toprule
+		Type                     & Parameter      & Comments                                                                                                               \\ \midrule
 		\multirow{5}{*}{Header}  & S/N            & Signal to Noise ratio of the trigger                                                                                   \\
 														 & DM             & Dispersion Measure in pc/cc of the trigger                                                                             \\
 														 & Width          & Width of the trigger in seconds                                                                                        \\
@@ -458,5 +458,6 @@ A typical trigger plot for a known pulsar trigger is given in~\autoref{fig:tp}.
 																																																				& dots           & For each EOPDAY                                                                                                        \\
 																																																				& ANTS           & \begin{tabular}[c]{@{}l@{}}Antenna information.\\ WIDAR\_ID, PAD, X, Y, Z, OFFSET\end{tabular}                         \\
 																																																																													& dots           & For each antenna                                                                                                      
+																																																																								\bottomrule
 	\end{tabular}
 \end{table}

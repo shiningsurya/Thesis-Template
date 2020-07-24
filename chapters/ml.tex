@@ -31,8 +31,39 @@ So only a subset of the triggers received are to be allowed to trigger voltages.
 Naturally, such a subset has to be selected on the basis of the signal's merit of being a real signal of astrophysical origin.
 The question of how to decide what triggers to trigger on is the main goal of this chapter.
 
-\section {ML models}
+\section {Machine Learning}
 \label{sec:ml}
+
+\par The objective of the AI is to given a trigger, identify if a following \emph{coherent} analysis has to be followed.
+In an ideal situation, it would be desirous to have an AI solution which can identify all the true signals (i.e., the signals of interest).
+However, training such an AI solution is extremely difficult.
+The signals of interest are rare. Hence, any dataset produced would posses this assymmetric, which then would make training difficult.
+Hence, this approach is abandoned. 
+Succiently, the mission of the AI is to select those triggers which are worthy of a second closer look.
+
+\par The major hurdle here is the lack of a labeled dataset. 
+Surely, \vfpfs possesses a large amount of data but not even a fraction of it is labeled.
+Meaning signals are identified to be true signals of interest or RFI or whitenoise.
+Labeling the whole dataset or a small subset is a laborious task.
+Instead, an alternative strategy is employed.
+
+Firstly, a convolutional autoencoder (CAE,~\cite{cae}) is trained on the entire dataset. 
+And, with a small subset of triggers from known pulsars and known RFI, a classifier feeding on the encoding layer is trained.
+This way, bulk of the training is done in an un-supervised fashion and the classifier is trained on a small subset.
+
+\subsection{Model}
+\label{ssub:mlmode}
+\par For the convolutional autoencoder (CAE, henceforth), the entire dataset is used.
+
+
+\subsection{Dataset}
+\label{ssub:dataset}
+
+
+\par All the known pulsars triggers from the \vfpfs are added to the true class. 
+The high activity RFI triggers are added to the false class.
+In addition, the whitenoise
+
 
 
 \section {Applying ML to VFPS}

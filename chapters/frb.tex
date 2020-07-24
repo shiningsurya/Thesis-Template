@@ -1,7 +1,7 @@
 \chapter{Fast Radio Bursts}\label{ch:frb}
 
 \par The domain of Radio Astronomy is full of surprises. 
-It all started with the serendiptious detection of \emph{a bright millisecond radio burst}~\cite{lorimerburst} in the archieval data which brought into light, the existence of short time-scale, extremely energetic radio signals, possibly originating from beyond the galaxy. 
+It all started with the serendiptious detection of \emph{a bright millisecond radio burst}~\cite{first_frb} in the archieval data which brought into light, the existence of short time-scale, extremely energetic radio signals, possibly originating from beyond the galaxy. 
 These signals are called \emph{Fast Radio Bursts (\frb{})} and the search for these signals forms the crux of this thesis.
 
 \par The first discovered \frb is the~\cite{lorimerburst} in $2001$, colloquially known as the \emph{Lorimer Burst}. 
@@ -87,6 +87,8 @@ The most distinctive feature of an \frb{}~ is its \dm which is many fold more th
 
 \begin{figure}
 \label{fig:dmdmax}
+	\centering
+	\includegraphics[width=0.8\textwidth, keepaspectratio]{dm_dmax.png}
 \caption{\dm v/s $\frac{\rm DM}{{\rm DM}_{\rm Max}}$. An updated version of~\cite{petroff_survey, palfa_frb}.}
 \end{figure}
 
@@ -99,12 +101,14 @@ Firstly, \autoref{fig:frbtime} summarizes the \frb{}s detected by various instru
 
 \begin{figure}
 	\label{fig:frbtime}
-	\caption{Population of \frb{}s over time. Red color is used for one-off events. Black for repeating events.}
+	\caption{Population of \frb{}s over time. The exponential trend is what drives \vf.}
 \end{figure}
 
 \begin{figure}
 	\label{fig:frbsky}
-	\caption{Population of \frb{}s over sky. Red color is used for one-off events. Black for repeating events.}
+	\centering
+	\includegraphics[width=0.8\textwidth, keepaspectratio]{frb_skymap.png}
+	\caption{Population of \frb{}s over sky. }
 \end{figure}
 
 \par Lastly, no introduction of \frb{}s is complete without rate calculations. With each survey for these signals, a rate of \frb{}s is computed in the units of per-day-per-sky to quantify the yield of the survey. This metric is rudimentary and shows how much is actually known about them. ~\autoref{tab:frbrates} captures the event rates published by various surveys.
@@ -131,11 +135,40 @@ Each compute node houses nVIDIA Graphical Processing Units (GPUs) for all the si
 
 \par This infrastructure is shared by two different pipelines: \vlite-SLOW and \vf. \vlite-SLOW is an imaging pipeline which produces short time skymaps and is not the focus of this thesis. \vf is a search pipeline which searches for \frb{}s.
 
+\subsection{VLITE as an FRB search engine}
+\label{ssub:vfrb}
+\par \vlite~is a well suited engine to detect \frb{}s. The salient features are summarized here:
+\begin{description}
+	\item[Commensal] 
+		\vlite~ being a commensal system has uncontested access to the data from the \vla antennas.
+		This leads to extremely large onsky times which are the times actively looking for signals of interest.
+	\item[Large field-of-view (FOV)]
+		Each \vlite~ antenna is a $25-$meter dish with center frequency of $350$ MHz ($0.85$ meters in wavelength). 
+		The diffraction limit of each antenna is $\frac{\lambda}{D}$ where $D$ is the diameter of the dish and $\lambda$ is the wavelength.  
+		\vlite~ achieves a diffraction limit of $0.034$ radians or $1.94^o$. 
+		An $\sim 2^o$ FOV covers a large portion of the sky. 
+
+	\item[Sensitivity]
+		\vlite~ employs $16$ antennas.
+		Use of a large number of antennas helps in reducing the overall background noise and thereby increases the sensitivity of the signal.
+	
+	\item[Inteferometer]
+		An inteferometer is a type of radio telescope with spatially separated antennas. 
+		The spatial separation helps produce a delay between any pair of antennas which is then used to triangulate (localize) the source of the signal. 
+		\vla~ is an interferometer. And, hence, \vlite~ is too.
+		Given how far the \frb{}s are originating from, any task of localizing the cause/source of the signal is hindered by the inability to precisely identify the particular pointing in sky from where the signal has originated.
+		Here lies the strength of \vlite~.
+\end{description}
+
+\par With the help of these features, \vlite~endevors to be a \emph{FRB localizing search engine}. 
+
 \subsection{Outline}
 
 \par The goal of the study is to establish and start a search campaign making use of the commensual observation system \vlite of the \vla radio observatory.
 With this in mind, a robust yet efficient realtime search pipeline was designed and coded (see~\autoref{chap:inst}).
 The data taken became a part of VLITE-Fast Pathfinder Survey (\vfpfs). The data is discussed in great detail in~\autoref{chap:data}.
-A completeness analysis is performed to test the detectability of signals. Moreover, artificial signals of interest were inserted into the pipeline for testing pipeline in a controlled environment. The datasets generated from both such analyses is used to develop an Aritificial Intelligence solution. 
-All of which is covered in~\autoref{chap:ml}.
+A completeness analysis, in which pure random noise was sent through pipeline, is performed to test the noise response of the pipeline. In addition, artificial signals of interest were inserted into the pipeline for testing the pipeline in a controlled environment. 
+The data products yielded by \vfpfs and the controlled testing have been used to develop an Aritificial Intelligence (AI) which will be covered in~\autoref{chap:ml}.
+The resulting AI solution is used to vet through the entire \vfpfs dataset to identify any unknown signal missed previously. Results of the AI analysis are also reported in the same chapter. 
+
 
