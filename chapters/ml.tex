@@ -9,14 +9,26 @@ Lastly, the newly \emph{learnt} ML model is applied to the whole of \vfpfs and r
 \label{sec:coh}
 
 \par \vf operates on an \emph{incoherent} level. In all of the pipeline, only the power is considered.
-There is no phase considered anywhere. This lack of phase greatly simplifies the pipeline design but comes at a cost.
+There is no phase considered anywhere.
 Hence the name, \emph{incoherent}.
+This lack of phase greatly simplifies the pipeline design but comes at a cost.
 
-\par For an array of $N$ antennas, co-addition in \emph{incoherent} (see~\autoref{ssub:needcoaddition}) only boosts the signal (or specifically, the signal-to-noise, \sn) by $\sqrt{N}$. 
-An \emph{coherent} analysis would boost the \sn~by $N$.
+\par For an array of $N$ antennas, co-addition in \emph{powers (incoherently)} (see~\autoref{ssub:needcoaddition}) only boosts the signal (or specifically, the signal-to-noise, \sn) by $\sqrt{N}$. 
+A \emph{coherent} analysis would boost the \sn~by $N$. The reason being the phase information.
+This can also be appreciated with this toy example. Consider the following equations:
+\begin{align*}
+{\rm sin} (\theta) + {\rm cos} (\phi) = {\rm sin} (\theta) + {\rm sin} (\frac{pi}{2} - \phi)  &= 2 {\rm sin} (\frac{\pi}{4} + \frac{\theta - \phi}{2}) {\rm cos} (-\frac{\pi}{4} + \frac{\theta + \phi}{2}) \\
+%{\rm sin} (\theta) + {\rm cos} (\phi) &= \sqrt{2} {\rm sin} (\frac{\pi}{4} + \theta) \\
+|| {\rm sin}(\theta) || ^2  + || {\rm cos}(\phi) || ^2 &= \big( {\rm sin} (\theta) + {\rm cos(\phi)} \big)^2 - 2{\rm sin}(\theta){\rm cos}(\phi)
+\end{align*}
+If the phase difference was zero, the coherent equation would yield \sqrt{2} gain whereas power equation would only yield trivial gain.
+In this way, coherent mode of analysis gives more sensitivity but the trade off is that there should be no phase difference. 
+This makes coherent analysis extremely challenging.
 
 \par In addition to the \sn~boost, a \emph{coherent} analysis would also provide good localization capability.
-This localization ability is of great value since \frb~s are known to be originating from outside the galaxy by which small angular variations could lead to astronomically large separated distances due to large radii.
+The localization ability is a by-product of relative phase estimation.
+Given a set of relative phases, one can translate to geometric delays and from there geometric path differences from asrophysical sources.
+This ability is of great value since \frb~s are known to be originating from outside the galaxy by which small angular variations could lead to astronomically large separated distances due to large radii.
 
 \subsection{Coherent analysis with \vf}
 
@@ -34,7 +46,7 @@ The question of how to decide what triggers to trigger on is the main goal of th
 \section {Machine Learning}
 \label{sec:ml}
 
-\par The objective of the AI is to given a trigger, identify if a following \emph{coherent} analysis has to be followed.
+\par The objective of the AI is to given a trigger, identify if a following \emph{coherent} analysis has to be initiated.
 In an ideal situation, it would be desirous to have an AI solution which can identify all the true signals (i.e., the signals of interest).
 However, training such an AI solution is extremely difficult.
 The signals of interest are rare. Hence, any dataset produced would posses this assymmetric, which then would make training difficult.
@@ -43,31 +55,51 @@ Succiently, the mission of the AI is to select those triggers which are worthy o
 
 \par The major hurdle here is the lack of a labeled dataset. 
 Surely, \vfpfs possesses a large amount of data but not even a fraction of it is labeled.
-Meaning signals are identified to be true signals of interest or RFI or whitenoise.
-Labeling the whole dataset or a small subset is a laborious task.
-Instead, an alternative strategy is employed.
+Labeled meaning signals identified to be true signals of interest or RFI or whitenoise.
+Labeling the whole dataset is an impossible task.
+Instead, an alternative strategy is employed which is discussed in~\autoref{ssub:strategy}.
+The datasets are described in~\autoref{ssub:dataset}.
 
-Firstly, a convolutional autoencoder (CAE,~\cite{cae}) is trained on the entire dataset. 
+\subsection{Strategy}
+\label{ssub:strategy}
+
+\par To make full use of the data available, a convolutional autoencoder (\autoref{sssub:cae}) is first trained on the entire dataset.
 And, with a small subset of triggers from known pulsars and known RFI, a classifier feeding on the encoding layer is trained.
 This way, bulk of the training is done in an un-supervised fashion and the classifier is trained on a small subset.
 
-\subsection{Model}
-\label{ssub:mlmode}
-\par For the convolutional autoencoder (CAE, henceforth), the entire dataset is used.
-
+\subsubsection{Convolutional AutoEncoder (CAE)}
+\label{sssub:cae}
+\par TODO
 
 \subsection{Dataset}
 \label{ssub:dataset}
 
+\par The entire \vfps dataset is used for training the convolutional autoencoder. 
+Triggers from known radio pulsars constitute a part of the \texttt{TRUE} class.
+All the injected and received triggers also constitute the \texttt{TRUE} class.
+RFI is manually selected using the creiterion described in~\autoref{sec:rfi}.
+The \dm{150} RFI is also selected and both form the \texttt{FALSE} class.
+The actual breakdown of the cardinalities are given in~\autoref{tab:dataset}.
 
-\par All the known pulsars triggers from the \vfpfs are added to the true class. 
-The high activity RFI triggers are added to the false class.
-In addition, the whitenoise
-
-
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\label{tab:dataset}
+	\begin{tabular}{@{}lll@{}}
+		\toprule
+		Dataset & Class & Number \\ \midrule
+		VFPS & - & 818 848 \\ \midrule
+		Injected & True & 8 480 \\
+		Pulsars & True & 23 574 \\
+		TRUE & - & 32 054 \\ \midrule
+		RFI & False & 8 207 \\
+		DM150 RFI & False & 20 660 \\
+		FALSE & - & 28 867 \\ \bottomrule
+	\end{tabular}
+	\caption{The breakdown of \vfps dataset used for ML. See text.}
+\end{table}
 
 \section {Applying ML to VFPS}
 \label{sec:ml_vfps}
 
-\par Having the newly \emph{learnt} set of AI models, a retrospect analysis of all the triggers part of \vfpfs is performed to uncover any previously missed triggers.
-Results are 
+\par TODO

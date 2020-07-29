@@ -129,7 +129,7 @@ Firstly, \autoref{fig:frbtime} summarizes the \frb{}s detected by various instru
 Hence before describing the outline, the \vlite system is described here.
 
 \par A selected subset of \vla antennas are fitted with low frequency receiver units at the casegrain feed. 
-Receivers are tuned to operate in $320|384$ MHz giving a bandwidth of $64$ MHz. Due to the Mobile Users Operating System (MUOS) of the Department of Defense, the higher end of the band receives a lot of Radio Frequency Interference (RFI), as a result, the frequency band is cut off at $361$ MHz. Nevertheless, the voltage data is sampled at $128$ Mhz (the Nyquist frequency of $64$ MHz bandwidth).
+Receivers are tuned to operate in $320-384$ MHz giving a bandwidth of $64$ MHz. Due to the Mobile Users Operating System (MUOS) of the Department of Defense, the higher end of the band receives a lot of Radio Frequency Interference (RFI), as a result, the frequency band is cut off at $361$ MHz. Nevertheless, the voltage data is sampled at $128$ Mhz (the Nyquist frequency of $64$ MHz bandwidth).
 \par The sampled data from each of the antenna is multicast on the observatory intranet using the User Datagram Protocol (UDP) in the form of VLBI Data Interchange Format (VDIF) packets. At the time of writing, there are $16$ \vla antennas participating in \vlite. \vlite also consists of $12$ compute nodes with one login node which are interconnected by an Infiniband network~\cite{infiniband}. 
 Each compute node houses nVIDIA Graphical Processing Units (GPUs) for all the signal processing and also has a $500$ GB Solid State Disk (SSD) installed.
 

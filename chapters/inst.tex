@@ -1,13 +1,24 @@
 \chapter{Instrumentation}
 \label{ch:inst}
 
-\par This chapter covers in detail the various pieces of hardware/software which make searching for FRBs possible. As with any data processing/search pipeline, the design consists of various components which are intermediated by data buffers. Such a design allows for modular component design wherein every component is assigned to be either producer or consumer depending on its position and makes it simplier. This practise is not novel in that it is knownas the \emph{producer-consumer} model.
+\par This chapter covers in detail the various pieces of hardware/software which make \vf~possible. 
+As with any data processing/search pipeline, the design consists of various components which are intermediated by data buffers. 
+Such a design allows for modular component design wherein every component is assigned to be either producer or consumer depending on its position and makes it simplier. This practise is not novel in that it is knownas the \emph{producer-consumer} model.
 
-\par Firstly, a brief overview of the infrastructure is summarized in 
+\par A brief overview of the infrastructure is summarized in~\autoref{ssub:over}. 
+The pipeline is graphically described in~\autoref{fig:pipeline}. All the data products/formats are defined in~\autoref{sec:datap}.
 
-\subsection {}
+\begin{figure}[ht]
+	\label{fig:pipeline}
+	\centering
+	\includegraphics[width=\textwidth, keepaspectratio]{vf_highres.png}
+	\caption{\vf~pipeline block diagram. See text.}
+\end{figure}
 
-\par Firstly, all the components and the data buffers technology are listed and then approached into details in separate subsequent sections.
+\subsection {Overview}
+\label{ssub:over}
+
+\par Firstly, all the components and the data buffers technology are listed and then approached into details in separate sections.
 \begin{description}
 \item[PSRDADA] Data buffer technology
 \item[Writer]  Baseband data packet capturing and writing
@@ -19,12 +30,13 @@
 \item[TriggerMaster] Realtime trigger responses
 \end{description}
 
-\par \vf is powered by a $12-$ node cluster each powered by $20$ core Intel Xeon with $64$ GB of Random Access Memory (RAM). Each node also houses \textt{nVIDIA} Titan X for signal processing heavylifting.
-
 \section {PSRDADA}
-\par The use of an intermediate buffer is ubiqitious in any real time pipeline. In a producer-consumer model, a producer emits data which is to read by the consumer. In a realtime constrained pipeline, the datarates may not be consistent all the time which may lead to consumer waiting for new data (producer is slow), or unable to accept new data (producer is fast).
+\par The use of an intermediate buffer is ubiqitious in any real time pipeline. In a producer-consumer model, a producer emits data which is to read by the consumer. 
+In a realtime constrained pipeline, the datarates may not be consistent all the time which may lead to consumer waiting for new data (producer is slow), or unable to accept new data (producer is fast).
+Hence naturally, many intermdiate buffers are used in \vf~pipeline design.
 
-\par \vf makes use of \dada as an intermediate buffer technology. \dada is built on SYSV shared memory model thus makes use of linux system's kernels and shared memory infrastructure in offering buffering capability. \dada codebase is in written in \cc for linux type machines. \dada is versatile that it can support the following modes:
+\par \vf makes use of \dada as an intermediate buffer technology. \dada is built on SYSV shared memory model thus makes use of linux system's kernels and shared memory infrastructure for offering buffering capability. 
+\dada codebase is in written in \cc for linux type machines. \dada is versatile that it can support the following modes:
 \begin{itemize}
 \item Single producer - Single consumer (SPSC)
 \item Single producer - Multiple consumer (SPMC)
@@ -34,21 +46,25 @@
 Of them all, \vf makes use of SPSC, SPMC oweing for a simple logic which involves a single producer.
 
 \par \dada can be visualized as an $n$-element ring buffer with each ring holding $b$ bytes of data. In addition to the data elements, \dada also offers header blocks which can be used to store data descriptors and such information is stored in ASCII.
+Header is defined as key value pair with key being a string and value being any data type.
+\autoref{fig:pipeline} shows \dada buffers as the concentric rings made of blocks.
 
 \section {Writer} 
-\hfill \emph {code contributed by Dr. Matthew T. Kerr}
+\hfill \emph {The writer code is wholly contributed by Dr. Matthew T. Kerr}
 
 \par \vf is a commensually operated search pipeline. Raw baseband voltage data comes in \texttt{VLBI Data Interchange Format (VDIF)} packets over
 \texttt{User Datagram Protocol} network sent by observatory level program called \texttt{executor}. The job of writer is to intercept these data packets and write the header and data into \dada buffer.
 
 \par The raw baseband data consists of two-polarizations, $64$MHz bandwidth real sampled at Nyquist sampling rate of $128$MHz. Writer captures these packets, checks for time ordering and writes into \dada buffer. Time integrity check is of paramount importance since all the following components assume a time continuous flow of data. 
 
-\par Incase writer finds that the incoming packets fail the time continuity check, it is designed to zero fill the packets in between so at least data is continuous in time. The causes for such are many. Sometimes, the ethernet link quality isn't high, or sometimes, the receiving nodes CPU usage is high that it can't respond in time. It has also been observed there are some nodes which are more suspectible to packet drops than other nodes. Such nodes are dropped from subsequent analysis. 
+\par Incase writer finds that the incoming packets fail the time continuity check, it is designed to zero fill the packets in between so at least data is continuous in time. The causes for such are many. 
+Sometimes, the ethernet network load may be high, or sometimes, the receiving nodes CPU usage is high that it can't respond in time. 
+It has also been observed there are some nodes which are more suspectible to packet drops than other nodes. Such nodes are ignored until the underlying issue is resolved. 
 
 \par Another job of writer is to respond to voltage triggers (see~\autoref{sec:tmech}). For every voltage trigger received, writer writes out one second VDIF file, containing packets, to the Solid State Drive (SSD) onboard for the duration of the trigger. Care is taken that overlapping triggers don't cause duplications of raw voltage files.
 
 \section {Process baseband} 
-\hfill \emph {code contributed by Dr. Matthew T. Kerr}
+\hfill \emph {The process baseband code contributed by Dr. Matthew T. Kerr}
 
 \par Reading raw baseband produced by \texttt{writer}, \texttt{process\_baseband} hereafter, \texttt{pb}, performs the following operations to output filterbank data into another \dada buffer:
 
@@ -63,7 +79,7 @@ Of them all, \vf makes use of SPSC, SPMC oweing for a simple logic which involve
 \par All the above operations are performed on \texttt{nVIDIA} Graphical Processing Units (GPUs). Channelization uses \texttt{CUDA-FFT (cuFFT)}. 
 All other operations involve user kernel launches. Addition of polarization yields Stokes \texttt{I} intesity. The upper edge of the \vf frequency band is polluted by the Mobile Users Operation System (MUOS), hence, the maximum frequency is cut off at $360$MHz bringing the effective bandwidth to $42$MHz. 
 
-\par For a large chunk ($\sim 1$s)of data, the bandpass (time averaged frequency profile) is normalized which removes any frequency variations on the time scales of a second. Since, the signals of interest are much smaller in time, such normalization doesn't harm them. In addition to this, there is also a kurtosis based filtering employed which removes any short timescales spurious data.
+\par For a large chunk ($\sim 1$s)of data, the bandpass (time averaged frequency profile) is normalized which removes any frequency variations on the time scales of a second. Since, the signals of interest are much smaller in time and dispersed, such normalization doesn't harm them. In addition to this, there is also a kurtosis based filtering employed which removes any short timescales spurious data.
 
 \par Last operation performed in this component is digitization which digitizes filterbank data with \texttt{NBIT}. Digitization scheme employed follows from~\cite{jenetanderson}. Now, the output data is written to another \dada buffer.
 
@@ -71,29 +87,33 @@ All other operations involve user kernel launches. Addition of polarization yiel
 
 \par Coaddition is the process of averaging time-aligned data streams to produce an averaged data stream. The operation of averaging reduces the noise floor and helps boost the signal.
 The motivation for coaddition is firmly established in~\autoref{subs:needcoaddition}. 
+\autoref{subs:mpic} explains the workings which make coaddition possible in \vf. 
 
-\par \autoref{subs:mpic} explains the workings which make coaddition possible in \vf. 
-From here on, coadder refers to the component of the \vf which performs coaddition. The underlying technology upon which coaddition operation is based is the Message Passing Interface (\mpi), hence, the coadder is also called \mpi coadder.
+\par From here on, coadder refers to the component of the \vf which performs coaddition. The underlying technology upon which coaddition operation is based is the Message Passing Interface (\mpi), hence, the coadder is also called \mpi coadder.
 
 \par Coadder reads the filterbank data written to \dada buffer by \pb for all the antennas, coadds, and writes the coadded filterbank data to a \dada buffer residing on a specific node (also called the root node) for further operations. 
 In short, the coadder performs, \emph{read-coadd-write} operation in every iteration.
 
 \subsection {Need for coaddition}
 \label{ssub:needcoaddition}
-\par By the Central Limit Theorem, the distribution of the mean of independent identically distributed (iid) random variables is a Gaussian distribution with mean as the population mean and standard deviation (from here on, \sd) as population \sd divided by $\sqrt{N}$.
-The reduction of the \sd means the overall noise has been suppressed to some extent and this proves to be very helpful in any data analysis setting. The extent of the attentuation of noise is determined by the sample size.
+\par By the Central Limit Theorem, the distribution of the mean of independent identically distributed (iid) random variables is a Gaussian distribution with mean as the population mean and standard deviation (\sd) as population \sd divided by $\sqrt{N}$.
+Noise in the filterbank datastream coming from each of the antenna can be modeled as independent Gaussian noise.
+Coaddition reduces the standard deviation of the noise and hence helps in bringing out the signal.
+The extent of the attentuation of noise is determined by the sample size i.e, the number of antennas.
 
-\par In addition to the noise suppression, coaddition also helps in bringing out the weaker signal since such a signal would be present in all the antennas, thus would constructively interact and average out to some non zero level. The noise, however, being random around zero level would average out to null.
+\par The signal boosting effect is also established while injecting signals. 
+A large amplitude dispersed signal has to be injected in a single antenna to produce the same \sn as in case of coadded antenna.
+This will be revisted in~\autoref{ssub:injected}.
 
 \subsection {MPI}
-\par Message Passing Interface (\mpi) is a technology ubiqitiously used in almost all High Performance Computing (HPC) settings. 
-\mpi offers various paradigms heavily optimized for parallized jobs. One such paradigm and also the foundational element is the collective algorithm. 
+\par Message Passing Interface (\mpi) is a technology ubiqitiously used in all High Performance Computing (HPC) settings. 
+\mpi offers various paradigms designed and optimized for parallized jobs. One such paradigm and also the foundational element is the collective algorithm. 
 \mpi defines a collective algorithm as one in which all the processes have to participate as a collection, hence the name collective algorithm. Of all the collective algorithms, only two are used in \vf and discussed here:
 \begin{description}
 	\item[Broadcast] One process has data which it needs to send to every other process.
 	\item[Reduce] All processes have data which is to be combined by some operator and the result is to be made available to a process.
 \end{description}
-In addition to the above collectives (parlance uesd by the HPC community), there is also the barrier operation which is used to synchronize processes. 
+In addition to the above collectives (parlance uesd by the HPC community to describe a collective operation), there is also the barrier operation which is used to synchronize processes. 
 
 \par The broadcast operation is performed when one process has data (or message) which is sent to all the other processes. At the end of this operation, all processes have identical data. The reduction operation is performed when all processes have some data which is to combined (or reduced) by some operation. The reduced data is present in a pre-defined process called the \root process. 
 The process of coaddition is explained in~\autoref{ssub:coadd}. 
@@ -136,12 +156,17 @@ Consequently, choice of reduction algorithm was delibrated upon.
 The following is heavily relied on the seminal paper~\cite{raben}.
 
 \par The default \mpi algorithm for reduce is the binomial tree reduction. 
-In this, every 
-The entire process is graphically depicted in~\autoref{fig:binreduce}.
+The essence of this algorithm is that one process sends it's data and other process receives it and adds it with it's own data.
+This repeats until there is only one process. It is graphically visualized to be a binomial tree with individual node's data as the leaves and the reduced data as the root. 
+See~\autoref{fig:binreduce}.
 
 \begin{figure}
 	\label{fig:binreduce}
-	\caption{Binomial algorithm for \mpi reduce of large messages~\cite{raben}.}
+	\centering
+	\includegraphics[width=0.8\textwidth,keepaspectratio]{Bcast_Binomial.png}
+	\caption{Binomial algorithm for \mpi reduce.(c.f.~\cite{raben}) It looks like an inverted binomial tree, hence, the name.
+		This graphic is an frame grabbed from this \href{youtube video}{https://www.youtube.com/watch?v=7gk1a-0sSk8} which is also made by me.
+	}
 \end{figure}
 
 \par Rabenseifner algorithm~\cite{raben} is an alternate reduce algorithm which is well suited for large messages.
@@ -156,19 +181,43 @@ The entire process is visualized in~\autoref{fig:rabenreduce}.
 
 
 \par In order to compare different reduction algorithms, a suitable metric has to be introduced.
-Metric used in~\cite{raben} is used here. The metric consists of total number of messages sent and total number of bytes sent.
-The metric used here is the same in the seminal paper~\cite{raben}.
+Metric employed here is loosely based on~\cite{raben}. 
+Two factors govern the metric. One, total number of messages sent. Two, total number of bytes sent.
+The former measures the latency which is treated as a constant for any size of message. The latter measures the total bandwidth requirement.
+The metrics are only mentioned here. Interested readers are requested to refer~\cite{raben}.
+The metrics are tabulated in~\autoref{tab:reducemetric}.
 
 \begin{figure}
-	\label{fig:reducelinear}
-	\caption{The linear trend in \texttt{reduce\_coadd} as number of iteration increases.}
+	\label{fig:linearshot}
+	\centering
+	\includegraphics[width=0.8\textwidth, keepaspectratio]{linear_shot.png}
+	\caption{The linear trend in \texttt{reduce\_coadd} (shown in blue) as number of iteration increases due to overhead on underlying transport protocol.
+		The extremely large \texttt{reduce_numant} (shown in green) is due to the (TCP) transport protocol hanging. See text.
+		\texttt{readbuf} (shown in red) is the time taken to a chunk of filterbank data. 
+		The x-axis in the plot is the iteration number. For this plot, the \nbit{2} and chunk size was $8$ seconds of data. 
+		This is from the early days of \vf~ when $19^h$ was considered a long run, hence the name \texttt{perhaps\_longest}.
+	 }
 \end{figure}
 
-\par The binomial reduce operation uses less messages but the total number of bytes sent is large.
+\par The binomial reduce operation uses less messages but the total number of bytes sent is large. 
+It was noticed that 
 
 \begin{table}
+\end{table}
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
 	\label{tab:reducemetric}
-	\caption{Metric for comparing the different reduce operations. c.f. with~\cite{raben}.}
+	\begin{tabular}{@{}llll@{}}
+		\toprule
+		Name & Latency & Bandwidth & Local \\ \midrule
+		Binomial & log N & S & S \\
+		Rabenseifner & 2 log N & 2 $\frac{p-1}/p$ S & $\frac{p-1}/p$ S \\ \bottomrule
+	\end{tabular}
+	\caption{Metric for comparing the different reduce operations. c.f. with~\cite{raben}.
+		$N$ is number of processes (or number of antennas) and $S$ is the total size of chunk in each antenna.
+		Rabenseifner although has double the latency, the bandwidth is only a fraction, hence is suitable for large messages.
+	}
 \end{table}
 
 \subsection{Bookkeeping}
@@ -176,17 +225,12 @@ The metric used here is the same in the seminal paper~\cite{raben}.
 
 % TODO
 
-\par The broadcast of \mjd is a crucial book keeping step. 
+\par The broadcast of \mjd is a crucial book keeping step. It ensures only time-continuous data goes down the pipeline. 
+As discussed above, this is achieved by \root keeping \mjd and other nodes comparing their own timestamp with it.
+This operation involves a broadcast
 
 \par In the \texttt{Reduce\_numant} step which computes the number of antennas which have participated in the coaddition,
 it was observed that occasionally the the time required would shoot to impossibly large times causing pipeline failure.
-
-\begin{figure}
-	\label{fig:tcpreduce}
-	\caption{Drastically large times for a single value \mpi reduce call zeroed onto the underlying Byte Transfer Layer (BTL) of the \mpi stack being \texttt{TCP}.}
-\end{figure}
-
-
 
 
 \section {Heimdall}
@@ -196,7 +240,20 @@ Heimdall is a Graphical Processing Unit (GPU) based search program which perform
 GPUs are needed de-dispersion is extremely computationally intensive operation. 
 Heimdall internally uses \texttt{dedisp} (~\cite{dedisp}) for de-dispersion.
 Tophat matched filtering helps to boost signals. Lastly, normalization of the time series prior to searching regularizes the data.
-A simplified algorithm is written in~\autoref{algo:heimdall}. 
+A simplified algorithm is shown here:
+\begin{verbatim}
+	for dm in {2..1000} 
+	do
+		for iwid in {1..6}
+		do
+			 de_disperse (dm) 
+			 matched_filter (pow (2, iwid))
+			 normalize
+			 find peaks
+		endfor
+	endfor
+\end{verbatim}
+
 Heimdall in reality is much more sophisticated and performs channel masking, and Radio Frequency Interference (RFI) excision. Interested readers are encouraged to read~\cite{heimdall}.
 
 \par Heimdall reads from the \dada~buffer to which coadder writes the coadded data stream. 
@@ -205,20 +262,6 @@ It reads a gulp size of data at a time (a parameter optimized, set to $24$ secon
 a candidate is registered at that particular \dm~,width, and epoch.
 Heimdall sends out these candidates over to Python server running on the login node from where it is suitably acted upon (discussed in the following sections). 
 Additionally, Heimdall also writes out the candidates to a candidate file. See~\autoref{ssub:candfile}.
-
-\begin{algorithm}
-	\label{algo:heimdall}
-	\foreach dm in {2..1000} \do
-		\foreach iwid in {1..6} \do
-			 de\_disperse (dm) ->
-			 matched\_filter ($2^{\rm iwid}$) ->
-			 normalize ->
-			 search
-		\endfor
-	\endfor
-\end{algorithm}
-
-
 
 \section {Trigger mechanics}
 \label{sec:tmech}
@@ -235,8 +278,8 @@ Each trigger has its own distinct multicast group which makes distinction and fo
 
 \par The underlying \struct which is passed around is the same for both the triggers. \autoref{struct:trigger} shows the struct definition. 
 \begin{table}
-	\begin{tabular}{llll}
-			Index & Name       & Type          & Comments                                               \\
+	\begin{tabular}{llll} \toprule
+			Index & Name       & Type          & Comments                                               \\ \midrule
 			1     & i0         & double        & UTC start epoch of signal                              \\
 			2     & i1         & double        & UTC end   epoch of signal                              \\
 			3     & sn         & float         & Signal to Noise ratio of the signal                    \\
@@ -244,6 +287,7 @@ Each trigger has its own distinct multicast group which makes distinction and fo
 			5     & wd         & float         & Width of the signals in seconds                        \\
 			6     & peak\_time & float         & Time since UTC epoch start of signal when signal peaks \\
 			7     & meta       & char{[}128{]} & Meta information                                      
+			\bottomrule
 	\end{tabular}
 	\caption {Trigger struct definition. Signal here means the signal of interest. See text for more information.}
 	\label{struct:trigger}
@@ -275,15 +319,13 @@ A typical rule for a \dbson trigger to also be a voltage trigger is a simple cut
 Hence, a suitable trigger throttling mechanism is put in place.
 Trigger rate may skyrocket for a multitude of reasons. It may be so whenever a bright radio pulsar in in the field-of-view (FOV) of \vf.
 It may also be when Radio Frequency Interference (RFI) is strong, causing a large number of spurious triggers.
-Given the frequency band of operation ($320|384$ MHz) being not just close to walky-talkies used by on-site engineers but also being close to MUOS band, \vf~is more suspectible to RFI.
+Given the frequency band of operation ($320-384$ MHz) being not just close to walky-talkies used by on-site engineers but also being close to MUOS band, \vf~is more suspectible to RFI.
 Presence and effects of RFI is discussed more in detail in~\autoref{sec:RFI}. 
 Here, only the instrumentation part of the throttling is described.
 
 \par Heimdall performs searches in batches. All the candidates from a batch are sent at once after the batch has been processed.
 Throttling is done at a sub-batch level. A typical batch size is $30720$ samples ($\sim 24$ seconds) and the sub-batch is $8$ seconds.
-Using the metrics defined and discussed in~\autoref{sec:RFI}, a sub-batch is vetted and subsequently dispatched.
-Throttling is performed on a sub-batch and not on a batch level since a batch lasts long, doing over a sub-batch offers finer control and instanteneous response.
-Moreover, $8$ is also the dispersion delay for the highest \dm~ searched for.
+As discussed in~\autoref{sec:RFI}, if a sub-batch sees more than $200$ triggers, it is vetoed against not dispatched.
 
 \subsection {Trigger hook}
 
@@ -319,15 +361,22 @@ Hence, prior to FDMT, the data is first incoherently de-dispersed to first \dm a
 
 \begin{figure}
 	\label{fig:bt}
+	\centering
+	\includegraphics[width=0.8\textwidth, keepaspectratio]{btplane.png}
 	\caption{Bowtie plane. \sn as a function of \dm and time. 
 	It is called a bowtie plane since a true dispersed signal produces a bowtie.
-	Insets are the frequency averaged integrated profiles at different \dm~s.
+	This is a trigger from Crab pulsar with \sn$=84.28$ and \dm$=56.75$pc/cc.
+	The data is digitized to \texttt{uint8} hence takes integer values in $[0,256)$.
 }
 \end{figure}
 
 \begin{figure}
 	\label{fig:dd}
-	\caption{Left: Dispersed filterbank. Right: De-dispersed filterbank.}
+	\centering
+	\includegraphics[width=0.8\textwidth, keepaspectratio]{ddidd.png}
+	\caption{Top:Dispersed filterbank. Bottom:De-dispersed filterbank.
+		Data is from a Crab pulsar trigger with \sn$=8.5$ and \dm$=56.75$pc/cc.
+	}
 \end{figure}
 
 \subsection {Meta response}
@@ -345,6 +394,7 @@ This server listens to the mcast group to which voltage triggers are issued.
 For a voltage trigger, it outputs a \textt{metar} file as described in~\autoref{ssub:metar,tab:metar}.
 
 \section {Data products}
+\label{sec:datap}
 \par This section defines all the data products of the pipeline. 
 \subsection {Candidate file}
 \label{ssub:candfile}
