@@ -8,6 +8,7 @@ Such a design allows for modular component design wherein every component is ass
 \par A brief overview of the infrastructure is summarized in~\autoref{ssub:over}. 
 The pipeline is graphically described in~\autoref{fig:pipeline}. All the data products/formats are defined in~\autoref{sec:datap}.
 
+
 \begin{figure}[ht]
 	\label{fig:pipeline}
 	\centering
@@ -29,6 +30,8 @@ The pipeline is graphically described in~\autoref{fig:pipeline}. All the data pr
 \item[TriggerHook]   Identifies slice of data and copies it for future analysis
 \item[TriggerMaster] Realtime trigger responses
 \end{description}
+
+\par Writer and Process Baseband have been developed, written by Dr. Matthew Kerr. The author has written Coadder, Trigger mechanics, Trigger Hook and TriggerMaster.
 
 \section {PSRDADA}
 \par The use of an intermediate buffer is ubiqitious in any real time pipeline. In a producer-consumer model, a producer emits data which is to read by the consumer. 
@@ -86,10 +89,10 @@ All other operations involve user kernel launches. Addition of polarization yiel
 \section {MPI Coadder}
 
 \par Coaddition is the process of averaging time-aligned data streams to produce an averaged data stream. The operation of averaging reduces the noise floor and helps boost the signal.
-The motivation for coaddition is firmly established in~\autoref{subs:needcoaddition}. 
-\autoref{subs:mpic} explains the workings which make coaddition possible in \vf. 
+The motivation for coaddition is firmly established in~\autoref{ssub:needcoaddition}. 
+\autoref{ssub:mpic} explains the workings which make coaddition possible in \vf. 
 
-\par From here on, coadder refers to the component of the \vf which performs coaddition. The underlying technology upon which coaddition operation is based is the Message Passing Interface (\mpi), hence, the coadder is also called \mpi coadder.
+\par From here on, coadder refers to the component of the \vf which performs coaddition. The underlying technology upon which coaddition operation is based is the Message Passing Interface (\mpi), hence, the coadder is also called \mpi~coadder.
 
 \par Coadder reads the filterbank data written to \dada buffer by \pb for all the antennas, coadds, and writes the coadded filterbank data to a \dada buffer residing on a specific node (also called the root node) for further operations. 
 In short, the coadder performs, \emph{read-coadd-write} operation in every iteration.
@@ -106,6 +109,7 @@ A large amplitude dispersed signal has to be injected in a single antenna to pro
 This will be revisted in~\autoref{ssub:injected}.
 
 \subsection {MPI}
+\label{ssub:mpic}
 \par Message Passing Interface (\mpi) is a technology ubiqitiously used in all High Performance Computing (HPC) settings. 
 \mpi offers various paradigms designed and optimized for parallized jobs. One such paradigm and also the foundational element is the collective algorithm. 
 \mpi defines a collective algorithm as one in which all the processes have to participate as a collection, hence the name collective algorithm. Of all the collective algorithms, only two are used in \vf and discussed here:
@@ -118,18 +122,18 @@ In addition to the above collectives (parlance uesd by the HPC community to desc
 \par The broadcast operation is performed when one process has data (or message) which is sent to all the other processes. At the end of this operation, all processes have identical data. The reduction operation is performed when all processes have some data which is to combined (or reduced) by some operation. The reduced data is present in a pre-defined process called the \root process. 
 The process of coaddition is explained in~\autoref{ssub:coadd}. 
 
-\par \mpi also offers capability of tuning by the Multi Component Architecture (MCA). MCA helps you to configure the various runtime parameters of \mpi jobs from pre-defined options to increase the performance. The tuning options used are described in~\autoref{ssub:tuning}.
+\par \mpi also offers capability of tuning by the Multi Component Architecture (MCA). MCA helps you to configure the various runtime parameters of \mpi jobs from pre-defined options to increase the performance. The tuning options used are described in~\autoref{ssub:reduce}.
 
 \subsection {Coaddition}
 \label{ssub:coadd}
 
 \par The operation of coaddition involves summation of the data from all the participating processes followed by a scaling. Naturally, the reduce operation with summation operator is a perfect fit for the summation step. 
 The scaling operation can then be performed locally. 
-The data is read from \dada buffer (which is written to by \pb). This data has been digitized to \nbit by \pb. 
-The first operation of coaddition is to convert the \nbit data into \float data. 
+The data is read from \dada buffer (which is written to by \pb). This data has been digitized to \nbit{} by \pb. 
+The first operation of coaddition is to convert the \nbit{} data into \float~data. 
 This operation increases the memory footprint by four folds but prevents any overflows in reduce operation and is necessary. 
 Next comes the actual \mpi reduce call after which, the coadded filterbank data (in \float) is present in \root process.
-The resultant \float is then re-digitized to \nbit and written to a \dada buffer present only on the \root node.
+The resultant \float~ is then re-digitized to \nbit{} and written to a \dada buffer present only on the \root node.
 
 \par Before any reduction is performed, it is paramount to check if all the data are time-aligned. 
 This time alignment is checked by the \mjd timestamp of the first datum in the array. 
@@ -140,10 +144,10 @@ If both the \mjd's match, actual filterbank data is used for reduction otherwise
 This is computed by another \mpi reduce operation which is done on a single integer set to $1$ if the process is participating with real data, otherwise set to $0$. This operation reduces the actual number of antennas which have contributed for the coaddition.
 
 \par Coaddition is the major bottleneck of the pipeline and it is also the most computationally expensive step. 
-A typical gulp of the data is $8$ seconds which with a typical \nchan{4096}, \nbit{8}, and sampling time amounts to $40$ MB.
-Due to the casting to \float, the gulp memory footprint shoots up to $160$ MB.
-For a typical number of antennas of $15$, every iteration of coaddition involves $160$ MB of floats summed across $15$ antennas, 
-making the total bandwidth of the operation to $160\ {\rm MB} \times 15 = 2.4$ GB.
+A typical gulp of the data is $8$ seconds which with a typical \nchan{4096}, \nbit{8}, and sampling time amounts to $10$ MB.
+Due to the casting to \float, the gulp memory footprint shoots up to $40$ MB.
+For a typical number of antennas of $15$, every iteration of coaddition involves $600$ MB of floats summed across $15$ antennas, 
+making the total bandwidth of the operation to $600\ {\rm MB} \times 15 = 4.8$ GB.
 Naturally, the performance of the pipeline depends on the optimizations of the \mpi operations.
 Two of the major optimizations are discussed in the following sub-sections.
 
@@ -165,7 +169,7 @@ See~\autoref{fig:binreduce}.
 	\centering
 	\includegraphics[width=0.8\textwidth,keepaspectratio]{Bcast_Binomial.png}
 	\caption{Binomial algorithm for \mpi reduce.(c.f.~\cite{raben}) It looks like an inverted binomial tree, hence, the name.
-		This graphic is an frame grabbed from this \href{youtube video}{https://www.youtube.com/watch?v=7gk1a-0sSk8} which is also made by me.
+		This graphic is an frame grabbed from this \url{https://youtu.be/p26iZX0sWgQ} which is also made by me.
 	}
 \end{figure}
 
@@ -175,8 +179,12 @@ After which, all the processes send their reduced chunk back to root.
 The entire process is visualized in~\autoref{fig:rabenreduce}.
 
 \begin{figure}
+	\centering
 	\label{fig:rabenreduce}
-	\caption{Rabenseifner algorithm for \mpi reduce of large messages~\cite{raben}.}
+	\includegraphics[width=0.8\textwidth,keepaspectratio]{Reduce_Raben.png}
+	\caption{Rabenseifner algorithm for \mpi reduce.(c.f.~\cite{raben}).
+		This graphic is an frame grabbed from this \url{https://youtu.be/cwi5kWgizPc} which is also made by me.
+	}
 \end{figure}
 
 
@@ -192,7 +200,7 @@ The metrics are tabulated in~\autoref{tab:reducemetric}.
 	\centering
 	\includegraphics[width=0.8\textwidth, keepaspectratio]{linear_shot.png}
 	\caption{The linear trend in \texttt{reduce\_coadd} (shown in blue) as number of iteration increases due to overhead on underlying transport protocol.
-		The extremely large \texttt{reduce_numant} (shown in green) is due to the (TCP) transport protocol hanging. See text.
+		The extremely large \texttt{reduce\_numant} (shown in green) is due to the (TCP) transport protocol hanging. See text.
 		\texttt{readbuf} (shown in red) is the time taken to a chunk of filterbank data. 
 		The x-axis in the plot is the iteration number. For this plot, the \nbit{2} and chunk size was $8$ seconds of data. 
 		This is from the early days of \vf~ when $19^h$ was considered a long run, hence the name \texttt{perhaps\_longest}.
@@ -200,7 +208,8 @@ The metrics are tabulated in~\autoref{tab:reducemetric}.
 \end{figure}
 
 \par The binomial reduce operation uses less messages but the total number of bytes sent is large. 
-It was noticed that 
+A linear trend is evident in the \textt{reduce\_coadd}. This issue caused multiple pipeline failures around $6^h$ mark when the lag in the step gets too high and pipeline cannot function realtime.
+The choice of Rabenseifner algorithm provides first aid to this issue. The linear trend is so slowly increasing that pipeline doesn't get derailed due to it.
 
 \begin{table}
 \end{table}
@@ -212,7 +221,7 @@ It was noticed that
 		\toprule
 		Name & Latency & Bandwidth & Local \\ \midrule
 		Binomial & log N & S & S \\
-		Rabenseifner & 2 log N & 2 $\frac{p-1}/p$ S & $\frac{p-1}/p$ S \\ \bottomrule
+		Rabenseifner & 2 log N & 2 $\frac{p-1}{p}$ S & $\frac{p-1}{p}$ S \\ \bottomrule
 	\end{tabular}
 	\caption{Metric for comparing the different reduce operations. c.f. with~\cite{raben}.
 		$N$ is number of processes (or number of antennas) and $S$ is the total size of chunk in each antenna.
@@ -223,14 +232,16 @@ It was noticed that
 \subsection{Bookkeeping}
 \label{ssub:bcast}
 
-% TODO
-
 \par The broadcast of \mjd is a crucial book keeping step. It ensures only time-continuous data goes down the pipeline. 
 As discussed above, this is achieved by \root keeping \mjd and other nodes comparing their own timestamp with it.
-This operation involves a broadcast
+This operation involves a broadcast of \float~ followed by simple logic where each process decides to send actual data or zero-filled data.
 
-\par In the \texttt{Reduce\_numant} step which computes the number of antennas which have participated in the coaddition,
+\par In the \texttt{Reduce\_numant} step, the number of antennas which have participated in the coaddition is computed.
+It is a reduce by sum operation where those processes which participated send one and those which didn't send zero.
+The resultant is stored in \root.
 it was observed that occasionally the the time required would shoot to impossibly large times causing pipeline failure.
+This is observed in~\autoref{fig:linearshot}.
+To alleviate this issue, \texttt{tcp} protocol use was dropped.
 
 
 \section {Heimdall}
@@ -286,7 +297,7 @@ Each trigger has its own distinct multicast group which makes distinction and fo
 			4     & dm         & float         & Dispersion Measure of the signal                       \\
 			5     & wd         & float         & Width of the signals in seconds                        \\
 			6     & peak\_time & float         & Time since UTC epoch start of signal when signal peaks \\
-			7     & meta       & char{[}128{]} & Meta information                                      
+			7     & meta       & char{[}128{]} & Meta information                                     \\
 			\bottomrule
 	\end{tabular}
 	\caption {Trigger struct definition. Signal here means the signal of interest. See text for more information.}
@@ -404,9 +415,9 @@ The definition of the file is given in~\autoref{tab:candfile}.
 % \usepackage{multirow}
 \begin{table}[]
 	\label{tab:candfile}
-	\caption{Description of candidate file.}
 	\begin{tabular}{lll}
-		\begin{tabular}[c]{@{}l@{}}Type of\\ data\end{tabular} & \begin{tabular}[c]{@{}l@{}}Number of\\ fields\end{tabular} & Data                                                                                                                 \\
+		\toprule
+		\begin{tabular}[c]{@{}l@{}}Type of\\ data\end{tabular} & \begin{tabular}[c]{@{}l@{}}Number of\\ fields\end{tabular} & Data                                                                                                                 \\ \midrule
 		\multirow{2}{*}{Pointing}                              & \multirow{2}{*}{2}                                         & Right Ascension in radians                                                                                           \\
 																													 &                                                            & Declination in radians                                                                                               \\
 		\multirow{9}{*}{Candidate}                             & \multirow{9}{*}{9}                                         & Signal to Noise ratio of the candidate                                                                               \\
@@ -417,82 +428,85 @@ The definition of the file is given in~\autoref{tab:candfile}.
 																																																									&                                                            & DM of the signal                                                                                                     \\
 																																																									&                                                            & Number of giants in the group                                                                                        \\
 																																																									&                                                            & UTC epoch of the start of the signal                                                                                 \\
-																																																									&                                                            & UTC epoch of the end of the signal                                                                                  
-										 
+																																																									&                                                            & UTC epoch of the end of the signal                                                                                 \\ 
+		\bottomrule
  \end{tabular}
+	\caption{Description of candidate file.}
 \end{table}
 \begin{table}
 	\label{tab:ubson}
 	% Please add the following required packages to your document preamble:
 	% \usepackage{multirow}
 	\begin{tabular}{llll}
-		\hline
-		Type                        & Parameter   & Present & Comments                                               \\ \hline
+		\toprule
+		Type                        & Parameter   & Present & Comments                                               \\ \midrule
 																& S/N         & Both    & Signal to Noise ratio of the trigger                   \\
 																& DM          & Both    & Dispersion Measure of the trigger                      \\
 																& Width       & Both    & Width of the trigger in seconds                        \\
 		\multirow{4}{*}{Time}       & Peak time   & Both    & Peak time of the trigger from the start of the data    \\
 																	& Tstart      & Both    & MJD of the start of the data                           \\
 																	& Tsamp       & Both    & Sampling time of the data                              \\
-																	& Duration    & Both    & Duration of the data                                   \\
+																	& Duration    & Both    & Duration of the data                                   \\ \midrule
 		\multirow{3}{*}{Frequency}  & Fch1        & Both    & Frequency of the first channel in MHz                  \\
 																	& Foff        & Both    & Frequency width in MHz                                 \\
-																	& Nchans      & Both    & Number of channels in the data                         \\
+																	& Nchans      & Both    & Number of channels in the data                         \\ \midrule
 		\multirow{4}{*}{Indices}    & I0          & Both    & UTC epoch of the first sample of the data              \\
 																	& I1          & Both    & UTC epoch of the last sample of the data               \\
 																	& Epoch       & Both    & UTC epoch of the start of the observation              \\
-																	& Nsamps      & Both    & Size of the data                                       \\
+																	& Nsamps      & Both    & Size of the data                                       \\ \midrule
 		\multirow{6}{*}{Parameters} & Nbits       & Both    & Number of bits per datum                               \\
 																	& Antenna     & Both    & Station ID                                             \\
 																	& Source name & Both    & Name of the source observing when trigger was recorded \\
 																	& RA          & Both    & Right Ascension of the source in radians               \\
 																	& Dec         & Both    & Declination of the source in radians                   \\
-																	& Group       & Both    & String identifier                                      \\
+																	& Group       & Both    & String identifier                                      \\ \midrule
 		DMs                         & DM1         & DBSON   & Start DM in pc/cc in bowtie plane                      \\
 																& DMoff       & DBSON   & DM width in bowtie plane                               \\
-																& NDM         & DBSON   & Number of DM trials in bowtie plane                    \\
+																& NDM         & DBSON   & Number of DM trials in bowtie plane                    \\ \midrule
 		Data                        & FB          & FBSON   & Raw filterbank                                         \\
 																& DD          & DBSON   & De-dispersed filterbank                                \\
-																& BT          & DBSON   & Bow-tie plane                                          \\ \hline
+																& BT          & DBSON   & Bow-tie plane                                          \\ \bottomrule
 	\end{tabular}
+	\caption {Description of \fbson~and \dbson. }
 \end{table}
 \subsection {FilterBank jSON}
-\par FilterBank jSON (\fbson) is an Universal Binary JSON~\cite{ubjson} file format containing unprocessed filterbank along with header information. Filterbank data is in time major format with frequency index changing the fastest.
+\par FilterBank jSON (\fbson) is an Universal Binary JSON~(\url{http://ubjson.org/}) file format containing unprocessed filterbank along with header information. Filterbank data is in time major format with frequency index changing the fastest.
 The schema is defined in~\autoref{tab:ubson}. 
 \par This data product is no longer in use since the trigger processing is currently done in realtime.
 \subsection {De-dispersed filterBank jSON}
 \label{ssub:dbson}
-\par De-dispersed filterbank jSON (\dbson) is an Universal Binary JSON~\cite{ubjson} containing de-dispersed filterbank and bowtie plane digitized to \uchar.
+\par De-dispersed filterbank jSON (\dbson) is an Universal Binary JSON~(\url{http://ubjson.org/}) containing de-dispersed filterbank and bowtie plane digitized to \uchar.
 The schema is defined in~\autoref{tab:ubson}.
 \subsection {Trigger plot}
 \label{ssub:tp}
 \par Trigger plot is a diagnostic plot generated for every trigger. 
-It is saved in Portable Networks Graphics (PNG,~\cite{png}) format and rendered used PGPLOT~\cite{pgplot} library.
+It is saved in Portable Networks Graphics (PNG,~\url{https://tools.ietf.org/html/rfc2083}) format and rendered used PGPLOT~\url{https://www.astro.caltech.edu/~tjp/pgplot/} library.
 
 \par A trigger plot consists of bow-tie plane, de-dispersed filterbank, frequency averaged time profile, and \dm profile. 
 In addition to them, a trigger plot also shows \sn, width, pointing information, and time information.
 A typical trigger plot for a known pulsar trigger is given in~\autoref{fig:tp}.
 
 \begin{figure}
+	\centering
 	\label{fig:tp}
-	\caption{A trigger plot generated on a trigger realtime. This trigger is from a pulsar.}
+	\includegraphics[width=\textwidth,keepaspectratio]{tplot.png}
+	\caption{A trigger plot generated on a trigger realtime. This trigger is from the Crab pulsar. Every trigger is processed and a trigger dump (\dbson) and trigger plot (shown here) are generated.}
 \end{figure}
 
 \subsection {META Voltages}
 \label{ssub:metar}
-\par Meta (\meta) is an Universal Binary JSON~\cite{ubjson} containing meta information required for any voltage analysis.
+\par Meta (\meta) is an Universal Binary JSON~(\url{http://ubjson.org/}) containing meta information required for any voltage analysis.
 % Please add the following required packages to your document preamble:
 % \usepackage{multirow}
 \begin{table}[]
 	\label{tab:metar}
-	\caption{Schema for Meta dumped for every voltage trigger.}
 	\begin{tabular}{lll} \toprule
 		Type                     & Parameter      & Comments                                                                                                               \\ \midrule
 		\multirow{5}{*}{Header}  & S/N            & Signal to Noise ratio of the trigger                                                                                   \\
 														 & DM             & Dispersion Measure in pc/cc of the trigger                                                                             \\
 														 & Width          & Width of the trigger in seconds                                                                                        \\
 														 & T0             & UTC epoch of the start of the signal                                                                                   \\
-														 & T1             & UTC epoch of the end of the signal                                                                                     \\
+														 & T1             & UTC epoch of the end of the signal                                                                                     \\ \midrule
 		\multirow{8}{*}{Delays}  & VLITE\_ANT\_ID & VLITE Antenna ID                                                                                                       \\
 														 & VLA Antenna    & VLA Antenna                                                                                                            \\
 														 & DIFX\_HOST     & Compute node connected to the antenna                                                                                  \\
@@ -500,14 +514,34 @@ A typical trigger plot for a known pulsar trigger is given in~\autoref{fig:tp}.
 														 & CLK\_OFFSET    & Clock offset in nanoseconds                                                                                            \\
 														 & PAD            & Antenna string identifier                                                                                              \\
 														 & LO\_FIBER      & RF-over-Fiber delay in nanoseconds                                                                                     \\
-														 & ENABLE         & If antenna is added to the array                                                                                       \\
+														 & ENABLE         & If antenna is added to the array                                                                                       \\ \midrule
 		\multirow{7}{*}{Antprop} & CONFIG         & Array configuration identifier                                                                                         \\
 														 & DATASETID      & Dataset identifier                                                                                                     \\
 														 & CREATION       & Epoch of creation                                                                                                      \\
 														 & EOPSET         & \begin{tabular}[c]{@{}l@{}}Earth Orientation Parameter set.\\ TAI\_UTC, UT1\_UTC and \\ pole information.\end{tabular} \\
 																																																				& dots           & For each EOPDAY                                                                                                        \\
 																																																				& ANTS           & \begin{tabular}[c]{@{}l@{}}Antenna information.\\ WIDAR\_ID, PAD, X, Y, Z, OFFSET\end{tabular}                         \\
-																																																																													& dots           & For each antenna                                                                                                      
+																																																																													& dots           & For each antenna                                                                                                     \\ 
 																																																																								\bottomrule
 	\end{tabular}
+	\caption{Schema for Meta dumped for every voltage trigger.}
+\end{table}
+
+\section{Codebases}
+
+\par There are two pipeline codebases. Writer and process-baseband wholly contributed by Dr. Matthew Kerr are found in \textt{vlite-fast} (\url{https://github.com/kerrm/vlite-fast}).
+All the other codes required for the pipeline (written by me) can be found in \texttt{asgard} (\url{https://github.com/shiningsurya/asgard}).
+
+\par \texttt{asgard} is the pipeline code written by me which makes \vf possible. It is written in \textt{C++}, \textt{Python} and \textt{BASH}. The breakdown of the lines of code (LOC) written are given in~\autoref{tab:codebreak}.
+
+\begin{table}[]
+	\label{tab:codebreak}
+	\begin{tabular}{@{}ll@{}}
+		\toprule
+		Language & LOC \\ \midrule
+		C++ & 10 000 \\
+		Python & 3 600 \\
+		BASH & 300 \\ \bottomrule
+	\end{tabular}
+	\caption{Lines of code (LOC) written in languages part of \texttt{asgard}.}
 \end{table}

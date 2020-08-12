@@ -1,23 +1,23 @@
 \chapter{VLITE-Fast Pathfinder Survey}
 \label{ch:data}
 
-\par This chapter summaries the entirity of the data collected in numerous runs of the \vf system, and follows it up careful statistical analysis. All triggers from known sources are summarized.
+\par This chapter summaries the entirity of the data collected in numerous runs of the \vf system, and follows it up careful statistical analysis. All triggers from known sources are summarized. The whole data is bundled together as the \textt{VLITE-Fast Pathfinder Survey} (\vfps).
 
 \section {Campaign runs}
 \label{sec:camp}
 
-\par \vfpfs consists of data collected over multiple settings. 
-Each campaign run is characterized by the type of filterbank data used (number of bits used for digitization) and the nature of trigger cuts used. 
-This characterization breaks the whole of \vfpfs into multiple campaigns. 
-Firstly, all the campaign runs are enumerated and discussed in brief before delving into the details in respective sub-sections.
+\par \vfps~consists of data collected over multiple settings. 
+Each campaign run is characterized by the bits of digitization used for filterbank data used and the trigger cuts used. 
+This characterization breaks the whole of \vfps~into multiple campaigns. 
+Firstly, all the campaign runs are enumerated and described in brief before delving into the details in respective sub-sections.
 \begin{description}
 	\item[NBIT = 2 (NB2)] \\
-		This was the first run of \vfpfs system. All the filterbank data was digitized to $2$ bits to test the computational capabilities of the pipeline. Conservative trigger cuts were employed for the same reason.
+		This was the first run of \vfps system. All the filterbank data was digitized to $2$ bits to test the computational capabilities of the pipeline. Conservative trigger cuts were employed for the same reason.
 	\item[NBIT = 8 (NB8)] \\
-		The filterbank data bit depth was increased to $8$ in this run. The trigger cuts were somewhat increaesd before.
+		The filterbank data bit depth was increased to $8$ in this run. The trigger cuts were somewhat more agressive than before.
 	\item[Max Warp (MW)] \\
 		The filterbank was digitized to $8$ bits same as before.
-		The trigger cuts were drastically changed to be the most aggressive possible. 
+		The trigger cuts were drastically changed to be the most aggressive cuts possible. 
 \end{description}
 
 The key features are summarized in ~\autoref{tab:campaigns}.
@@ -30,8 +30,8 @@ The key features are summarized in ~\autoref{tab:campaigns}.
 		\toprule
 		Label & \begin{tabular}[c]{@{}l@{}}Start\\ (YYYY-MM-DD)\end{tabular} & \begin{tabular}[c]{@{}l@{}}End\\ (YYYY-MM-DD)\end{tabular} & \begin{tabular}[c]{@{}l@{}}On-sky\\ (day)\end{tabular} & \begin{tabular}[c]{@{}l@{}}Uptime\\ (\%)\end{tabular} & Triggers & \begin{tabular}[c]{@{}l@{}}Rate\\ (/hr)\end{tabular} & Comments \\ \midrule
 		NB2 & 2019-10-17 & 2019-12-05 & 27.03 & 55.61 & 10 306 & 15.89 & Two bit digitization \\
-		NB8 & 2019-12-19 & 2020-01-21 & 12.16 & 36.10 & 12 028 & 41.19 & Eight bit digitization with more lower trigger cuts \\
-		MW & 2020-01-22 & 2020-06-27 & 87.16 & 55.32 & 826 294 & 394.85 & Eight bit digitization with the minimum possible trigger cuts \\
+		NB8 & 2019-12-19 & 2020-01-21 & 12.16 & 36.10 & 12 028 & 41.19 & Eight bit digitization\\
+		MW & 2020-01-22 & 2020-06-27 & 87.16 & 55.32 & 826 294 & 394.85 &Eight bit digitization \\
 		ALL & 2019-10-17 & 2020-06-27 & 126.38 & 49.79 & 848 628 & 279.77 & All the campaigns \\ \bottomrule
 	\end{tabular}
 	\caption{Salient features of the campaign runs.}
@@ -49,7 +49,7 @@ The trigger cuts were humble:
 	{\rm Width} &\leq 100 {\rm\ ms}
 \end{align*}
 
-\par This run didn't have the \dbson trigger mechanics in place. Instead, for every trigger \fbson~ files were written to disks at all the antennas including the coadded antenna as well.
+\par This run didn't have the \dbson~trigger mechanics in place. Instead, for every trigger, an \fbson~file was written to disks at all the antennas including the coadded antenna as well.
 
 \subsection {NB8}
 
@@ -66,7 +66,7 @@ The trigger cuts were a bit more agressive than NB2 run.
 
 \subsection {MW}
 
-\par This is the longest campaign run in the \vfpfs. 
+\par This is the longest campaign run in the \vfps. 
 Starting from \texttt{2020-01-22} to \texttt{2020-06-27}, in a total length of $157$ days, \vf~ achieved $55.32$ uptime by being on sky for $\sim 87$ days.
 Two separate trigger cuts were employed to keep trigger rates in check.
 The trigger cuts were as aggressive as possible, hence, collecting $826\ 294$ triggers with trigger rate of $\sim 395\ {\rm hr}^{-1}$.
@@ -80,7 +80,7 @@ The trigger cuts were as aggressive as possible, hence, collecting $826\ 294$ tr
 
 \par A large onsky time yields many serendiptious triggers caused by pulses from pulsars. 
 These detections are a field test for \vf and are tabulated in~\autoref{tab:psrdetect}.
-Based on these detections, a rudimentary argument for Field of View (FOV) (~\autoref{ssub:fov}) and sensitivity (~\autoref{ssub:sensitiviy})is formulated.
+Based on these detections, a rudimentary argument for Field of View (FOV) (\autoref{ssub:fov}) and sensitivity (\autoref{ssub:sensitiviy}) are formulated.
 
 % Please add the following required packages to your document preamble:
 % \usepackage{booktabs}
@@ -90,7 +90,9 @@ Based on these detections, a rudimentary argument for Field of View (FOV) (~\aut
 		\toprule
 		PSRJ & \begin{tabular}[c]{@{}l@{}}RAJ\\ (hh:mm:ss)\end{tabular} & \begin{tabular}[c]{@{}l@{}}DECJ\\ (dd:mm:ss)\end{tabular} & \begin{tabular}[c]{@{}l@{}}DM\\ (pc/cc)\end{tabular} & \begin{tabular}[c]{@{}l@{}}P0\\ (s)\end{tabular} & \begin{tabular}[c]{@{}l@{}}W50\\ (ms)\end{tabular} & N & \begin{tabular}[c]{@{}l@{}}S400\\ (mJy)\end{tabular} & \begin{tabular}[c]{@{}l@{}}Time on source\\ (hr)\end{tabular} \\ \midrule
 		J1752-2806 & 17:52:58.6 & -28:06:37.3 & 50.37 & 0.562 & 6.1 & 2196 & 1100.0 & 2.00 \\
+		%J0528+2200 & 05:28:52.2 & +22.00:04   & 50.86 & 3.74  & 151.9 & - & 57 & - \\ 
 		J0534+2200 & 05:34:31.9 & +22:00:52.0 & 56.77 & 0.033 & 3.0 & 24 & 550.0 & 0.84 \\
+		J0742-2822 & 07:42:49.0 & -28:22:43.7 & 73.73  &0.166 &  4.200  & 90 &  296.00 &  \\
 		J1745-3040 & 17:45:56.3 & -30:40:22.9 & 88.37 & 0.367 & 6.1 & 29 & 66.0 & 23.72 \\
 		J2321+6024 & 23:21:55.2 & +60:24:31 & 94.59 & 2.256 & 131.1 & 4 & 36.0 & 0.14 \\
 		J1935+1616 & 19:35:47.8 & +16:16:39.9 & 158.52 & 0.358 & 6.0 & 34 & 242.0 & 1.72 \\
@@ -102,21 +104,24 @@ Based on these detections, a rudimentary argument for Field of View (FOV) (~\aut
 \begin{figure}
 	\centering
 	\label{fig:psrdetect}
+	\includegraphics[width=0.8\textwidth, keepaspectratio]{that7.png}
 	\caption{Collage of averaged pulses from the detected pulsars.}
 \end{figure}
 
 \subsection{Field of View}
 \label{ssub:fov}
 
-\par It is worthwhile to understand the spatial extent over which the \psr{J1752} (from now on dm50) has been detected. 
+\par It is worthwhile to understand the spatial extent over which the \psr{J1752-2806} (from now on dm50) has been detected. 
 This exercise would help us visualize how large of a field-of-view \vf posses.
 Angular resolution on the basis of a diffraction limit arguments is $\sim 2^o$ (c.f.~\autoref{ssub:vfrb}).
 See ~\autoref{fig:dm50fov}. 
 \begin{figure}
+	\centering
 	\label{fig:dm50fov}
 	\includegraphics[width=0.8\textwidth, keepaspectratio]{dm50_fov.png}
 	\caption{Large FOV of \vf understood using \psr{J1752-2806} as a marker. 
-	Dots represent the pointings where triggers from the pulsars were recorded.
+	Crosses represent the pointings where triggers from the pulsars were recorded.
+	Color is coded to represent the  number of triggers detected from each pointings.
 	%Numbers next to the dots represent fraction of the total number of triggers detected at the pointing.
 	%Overlayed dashed lines represent angular size of $2"$ (in red).
 }
@@ -149,7 +154,7 @@ This is described in~\autoref{ssub:rfim}. \vfpfs also observed recurring RFI whi
 \subsection {RFI contamination}
 \label{ssub:rfim}
 
-\par Detection of a true signal (of astrophysical origin) is a rare occasion. Registering a large number of triggers in a short time is indicative of RFI.
+\par Detection of a true signal (of astrophysical origin) is a rare event. Registering a large number of triggers in a short time is indicative of RFI.
 This fact is used to measure the amount of RFI contamination in the \vfpfs data.
 All the triggers are collected in $8$-second batches and counted.
 If a given batch has a large number of triggers in it, it is treated as RFI.
@@ -162,11 +167,14 @@ Another way to interpret the same would be that only a small portion of the data
 A suitable threshold is thus selected which limits the maximum number of triggers in a batch of $8$ seconds but retains most of the triggers.
 Mathematically, this threshold which be an inflection point of the cumulative distribution function.
 
+\par Based on the cumulative distribution, $95,99\%$ percentiles turn out to be $1.125$ triggers s$^{-1}$ and $2.75$ triggers s$^{-1}$. This is shown as the black dotted line and red solid line in the plot (\autoref{fig:rficon}).
+
 \begin{figure}
+	\centering
 	\label{fig:rficon}
 	\includegraphics[width=0.8\textwidth, keepaspectratio]{rficum.png}
 	\caption{Cumulative distribution of number of candidates received in an $8$-second gulp.
-		Setting a limit of $10$ candidates in a gulp, and treating the rest as RFI gulps, $\sim1\%$ of the \vfpfs data is said to be contaminated with RFI.
+		The lines correspond to $95,99\%$ percentiles which mean $1.125$ triggers s$^{-1}$ and $2.75$ triggers s$^{-1}$.
 	}
 \end{figure}
 
@@ -176,15 +184,26 @@ Mathematically, this threshold which be an inflection point of the cumulative di
 \par Short time RFI in a single frequency channel does not produce spurious triggers since bandpass normalization on the time windown containing the RFI cancels its intensity. 
 However, when there is short time RFI in separate channels, it is a different story. 
 If such a short time RFI is coincident in time, any search pipeline would register it as a \DM{0} signal and can be filtered out easily.
-But, if the same RFI has a time offset between the frequency channels, it causes the same search pipeline to register spurious triggers and are much more difficult to excise.
+But, if the same RFI has a time offset between the frequency channels, it causes the same search pipeline to register spurious triggers at that \dm~which culls the time offset and hence are much more difficult to excise.
 
 \par A short time RFI exisiting only in specific frequency channels having time offset between the channels behaves like a dispersed signal. 
 And a candidate is registered for that \dm which aligns the time offset.
-This effect is observed in \vfpfs which causes triggers at a range of \dm~s centered around \DM{150}, hence the name. See the de-dispersed filterbank and frequency averaged profile in~\autoref{fig:rfidm150}.
+This effect is observed in \vfps which causes triggers at a range of \dm~s centered around \DM{150}, hence the name. See the de-dispersed filterbank and frequency averaged profile in~\autoref{fig:rfidm150}.
 
 \begin{figure}
+	\centering
 	\label{fig:rfidm150}
-	\caption{}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width=0.8\textwidth, keepaspectratio]{frame_144.png}
+		\caption{Solid black line represents \DM{129}.}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width=0.8\textwidth, keepaspectratio]{frame_204.png}
+		\caption{Solid black line represents \DM{137}.}
+	\end{subfigure}
+	\caption{Top: Distribution of triggers contaminated with DM150 RFI. Bottom: De-dispersed filterbank showing the narrow band RFI.}
 \end{figure}
 
 \section {Heimdall triband structure}
@@ -212,14 +231,14 @@ These \dm~s are found to be \DM{347.165} and \DM{790.695} for which the in-chann
 	% \usepackage{multirow}
 		\begin{tabular}{llll}
 			\toprule
-			DM (pc/cc)               & Frequency (Mhz) & Smearing (ms) & Time units \\
+			DM (pc/cc)               & Frequency (MHz) & Smearing (ms) & Time units \\
 			\midrule
 			\multirow{3}{*}{347.165} & 361.941         & 19.9          & 25         \\
 															 & 340.973         & 23.8          & 30         \\
-															 & 320             & 28.8          & 36         \\
+															 & 320             & 28.8          & 36         \\ \midrule
 			\multirow{3}{*}{790.695} & 361.941         & 45.3          & 58         \\
 															 & 340.973         & 54.2          & 69         \\
-															 & 320             & 65.6          & 84        
+															 & 320             & 65.6          & 84       \\ 
 			\bottomrule
 		\end{tabular}
 \end{table}
@@ -235,7 +254,7 @@ These \dm~s are found to be \DM{347.165} and \DM{790.695} for which the in-chann
 \begin{figure}
 	\label{fig:histdm}
 	\includegraphics[width=0.8\textwidth, keepaspectratio]{dm_distro.png}
-	\caption{Histogram of \dm of all the triggers recorded.
+	\caption{Histogram of \dm~of all the triggers recorded.
 		The sharp line at \DM{50} is due to the \psr{J1752-2806}.
 		The sharp lines at \DM{350}, \DM{800} and \DM{1000} are due to heimdall triband structure. See~\autoref{sec:htriband}.
 		The very broad peak at \DM{150} is due to narrow band RFI. See~\autoref{ssub:dm150}.
@@ -246,14 +265,27 @@ These \dm~s are found to be \DM{347.165} and \DM{790.695} for which the in-chann
 \section{Summary statistics}
 \label{sec:sum}
 \par For a total uptime of $\sim 126$ days, the distribution of time spent on each pointing in shown in~\autoref{fig:skymap}.
+The trigger rates are tabulated in~\autoref{tab:trates}. Since the trigger logic was significantly changed among campaigns, the trigger rates are only shown for MW campaign.
 
 \begin{figure}
 	\centering
 	\label{fig:skymap}
 	\includegraphics[width=0.8\textwidth, keepaspectratio]{g6m_skymap.png}
-	\caption{Skymap of time spent on pointing in hours.}
+	\caption{Skymap of time spent on pointing in hours. Axes are Right Ascension/Declination.}
 \end{figure}
 
+\begin{table}[]
+	\label{tab:trates}
+	\begin{tabular}{@{}llll@{}}
+		\toprule
+		S/N cut & \begin{tabular}[c]{@{}l@{}}Trigger\\ rate (/hr)\end{tabular} & S/N cut & \begin{tabular}[c]{@{}l@{}}Trigger\\ rate (/hr)\end{tabular} \\ \midrule
+		6 & 394.85 & 7.5 & 50.28 \\
+		6.5 & 165.10 & 8 & 33.9 \\
+		7 & 85.92 & 10 & 13.58 \\ \bottomrule
+	\end{tabular}
+	\caption{Trigger rates for different \sn~cuts in real data. Since the trigger logic was different in all the campaigns. These trigger rates are computed only from the MW campaign where the \sn~cut was the least possible. There are $826~924$ triggers in this campaign. See text for more information.
+	}
+\end{table}
 
 \section{Simulation runs}
 \label{sec:sim}
@@ -296,8 +328,8 @@ This exercise shows that about $58\%$ of the triggers are due to pure random noi
 		6.5 & 23.1 & 8 & 2 \\
 		7 & 6.5 & 10 & 0.12 \\ \bottomrule
 	\end{tabular}
-	\caption{Trigger rates for different \sn cuts. Notice the extremely steep decline in trigger rate at low \sn. 
-		This shows the extent of low \sn being whitenoise triggers. See text for more information.
+	\caption{Trigger rates for different \sn~cuts. Notice the extremely steep decline in trigger rate at low \sn. 
+		This shows the extent of low \sn~being whitenoise triggers. See text for more information.
 	}
 \end{table}
 
@@ -310,9 +342,9 @@ This exercise shows how receptible \vf~pipeline is.
 Since the known signal is embedded on top of random noise, there are also many noise triggers which are registered.
 Such triggers are later filtered by comparing the time of injection with the time of trigger's peak.
 \par This simulation run was designed to inject $15$ \frb{}s in $2$-minutes, yielding a trigger rate of $450$ hr$^{-1}$.
-Due to the Heimdall tri-band structure (see~\autoref{htriband}), which makes the former less suspectible to high \dm triggers for widths far from the quantized width, the trigger rate captured was $308$ hr$^{-1}$.
+Due to the Heimdall tri-band structure (see~\autoref{sec:htriband}), which makes the former less suspectible to high \dm triggers for widths far from the quantized width, the trigger rate captured was $308$ hr$^{-1}$.
 ~\autoref{fig:injected} shows four subplots. The triband structure is plotted in top left. The rest capture the distributions of registered \sn, \dm and widths.
-\par The decreasing density for large \sn,\dm is because of Heimdall triband structure. 
+\par The decreasing density for large \sn,\dm~is because of Heimdall triband structure. 
 Due to the quantization in the width for large \dm, many high \dm signals are not registered hence, a downward trend is observed in \sn, \dm.
 
 \begin{figure}

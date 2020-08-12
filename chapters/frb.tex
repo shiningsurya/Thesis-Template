@@ -1,23 +1,33 @@
 \chapter{Fast Radio Bursts}\label{ch:frb}
 
 \par The domain of Radio Astronomy is full of surprises. 
-It all started with the serendiptious detection of \emph{a bright millisecond radio burst}~\cite{first_frb} in the archieval data which brought into light, the existence of short time-scale, extremely energetic radio signals, possibly originating from beyond the galaxy. 
+What started off as an experiment to communicate across the Atlantic ocean using radio waves soon took turn when Karl Jansky recorded radio signals emanating from the direction of our galaxy's center and established the idea of using radio telescopes to \emph{look} at the heavens.
+Many decades later, the same radio astronomy discovered a new type of stars which shines but in radio regime and also pulsates like a light house. These were characterized to be pulsating source of radiation and were aptly named as pulsars.
+Half a century later during which thousands of pulsars were discovered and documented, a new type of a signal emerged.
+It was a serendiptious detection of \emph{a bright millisecond radio burst}~\cite{lorimerburst} in the archieval data which brought into light, the existence of short time-scale, extremely energetic radio signals, possibly originating from beyond the galaxy. 
 These signals are called \emph{Fast Radio Bursts (\frb{})} and the search for these signals forms the crux of this thesis.
 
-\par The first discovered \frb is the~\cite{lorimerburst} in $2001$, colloquially known as the \emph{Lorimer Burst}. 
+\par The first discovered \frb is the~\cite{lorimerburst} in $2007$, colloquially known as the \emph{Lorimer Burst} (see~\autoref{fig:lorimer}). 
 Many theory papers followed but there was no corroborative detection. In the lack of which, skeptisim arose~\cite{burke_doubt}. 
 Prior to that~\cite{old_m87_bursts} detected \frb-like pulses with \dm as high as $5\times 10^3$ \pc originating from \textt{M87}. So, these may very well have been the first detection of \frb~s but due to the limited time/frequency resolution, no substantiative evidence could be established. 
+
+\begin{figure}
+	\centering
+	\label{fig:lorimer}
+	\includegraphics[width=\textwidth,keepaspectratio]{lorimer_burst.png}
+	\caption{Lorimer burst. The first ever \frb{} detected. The curve in the filterbank (see~\autoref{ssub:fb}) is due to a propagation effect called dispersion (see~\autoref{ssub:dis}). The sheer strength of the signal is self evident when looking at the amplitude of the peak.}
+\end{figure}
 
 \par Astronomers were not wrong in their dubious nature. Their experience with another specie of signals called Perytons~\cite{perytons} justifies it. Named after the mystical hybrid bird, these signals were actually caused by the microwave on the observatory site. The premature opening of the microwave door shuts off the magnetron abruptly, which produces a dispersed-like signal which was then picked up by the radio telescope.
 This put more shade on the celestial nature of the \emph{Lorimer Burst}.
 
-\par But then came as a surprise, ~\cite{danburst4} in $2016$ which reported $4$ such bursts and thus set in stone the existence of such species. 
-Now, four years and sophisticated advancements in observatory technologies later, the number of \frb{}s detected is in thousands. The details of this story will be discussed in \autoref{sec:detect_so_far}.
+\par But then came as a surprise, ~\cite{danburst4} in $2016$, almost a decade later, which reported $4$ such bursts and thus set in stone the existence of such species. The hunt was on.
+Now, four years and many sophisticated advancements in observatory technologies later, the number of \frb{}s detected is in hundreds. The details of this story will be discussed in \autoref{sec:detect_so_far}.
 
 \par Given the amount of shear energy emitted in these bursts, astronomers were not wrong in maintaining an innate assumption that these events were result of a cataclysmic event. And by the very nature of such events, \frb{}s were not expected to repeat. And then came as a surprise, \frb{121102} in $2012$, which repeated in time.
-Over the years since its discovery, \frb{121102} is perhaps the most studied \frb{} with observations done from meter wavelength to milli-meter wavelength. See~\cite{sptlier}.
+Over the years since its discovery, \frb{121102} is perhaps the most studied \frb{} with observations done from meter wavelength to milli-meter wavelength. See~\cite{spitler, palfa_frb}.
 
-\par Astronomy wouldn't be full of surprises, if \frb{121102}~ was the only repeating \frb{}~ found. In $2019$,~\cite{chime_repeaters} found $4$ repeating \frb{}s (henceforth called repeaters) using the Canadian Hydrogen Intensity Mapping Experiment (CHIME) telescope which prompted a fresh set of theories to emerge to explain the same.
+\par Astronomy wouldn't be full of surprises, if \frb{121102}~ was the only repeating \frb{}~ found. In $2019$,~\cite{chime_repeater8,chime_repeater9} found $4$ repeating \frb{}s (henceforth called repeaters) using the Canadian Hydrogen Intensity Mapping Experiment (CHIME) telescope which prompted a fresh set of theories to emerge to explain the same.
 
 \par All the discovered \frb{}s are catalogued in \textt{FRBCAT}~\cite{frbcat}. All the theories of \frb{}s are also catalogued in \textt{FRB-theorycat}~\cite{frbtheorycat}.
 
@@ -27,9 +37,8 @@ Over the years since its discovery, \frb{121102} is perhaps the most studied \fr
 \par Before we go into \frb{}s. It is crucial to establish certain groundwork known in a radio astronomy setting. 
 First being the data representation format widely used: filterbank in~\autoref{ssub:fb}. 
 Second being the phenomenon of dispersion which affects all the radio signals propagating through the space and reaching the radio telescope. 
-This will be covered in detail in~\autoref{ssec:dis}.
-
-\par Then, in~\autoref{ssub:dis}, \frb{}s are characterized.
+This will be covered in detail in~\autoref{ssec:dis}. 
+Then, in~\autoref{ssub:dis}, \frb{}s are characterized.
 
 \subsection{Filterbank}
 \label{ssub:fb}
@@ -60,7 +69,7 @@ This plasma exists in the line of sight between the source and the observatory. 
 \label{eq:dispersion}
 \Delta t = {\rm DM} \times 4.15 \times 10^{-3} \big[  \frac{1}{\nu^2_{\rm LOW}} - \frac{1}{\nu^2_{\rm HIGH}} \big]\ {\rm s}
 \end{equation}
-This effect of dispersion is to be corrected for any analysis and the process is called de-dispersion. More details about de-dispersion will be covered in~\autoref{chap:inst, }.
+This effect of dispersion is to be corrected for any analysis and the process is called de-dispersion. More details about de-dispersion will be covered in~\autoref{ch:inst}.
 
 \par Dispersion is purely a propagation effect. Thus, amount of dispersion provides a good marker of distance. There are two models for electron distribution in the galaxy, NE2001~\cite{ne2001} and YMW~\cite{ymw16}. With the help of a model, given a pointing in Galactic coordinates ($l$, $b$), the \dm contribution by the Galaxy can be estimated. This model becomes useful later when talking about \frb{} origin in following sections. 
 
@@ -92,15 +101,29 @@ The most distinctive feature of an \frb{}~ is its \dm which is many fold more th
 \caption{\dm v/s $\frac{\rm DM}{{\rm DM}_{\rm Max}}$. An updated version of~\cite{petroff_survey, palfa_frb}.}
 \end{figure}
 
-\par 
+\par \frb{}s also exhibit other features such as scintillation and scattering. Scintillation is the twinkling of stars phenomena one can observe. 
+Scintillation presents itself in \frb{}s as the pulse disappearing for some frequency channels and appearing back when looking at the filterbank. This can be observed in the~\autoref{fig:frbset}. 
+Scattering is the broadening of the pulse in the filterbank. This is also seen as an exponential tail in the frequency averaged profile.
+Also see~\autoref{fig:frbset}.
+
+\begin{figure}
+	\label{fig:frbset}
+	\centering
+	\includegraphics[width=0.8\textwidth, keepaspectratio]{frbset.png}
+	\caption{A set of repeating \frb{}s detected~\cite{chime_repeater9}. Scattering causes the broadening of the pulse.}
+\end{figure}
 
 \section{Detections so far}
+\label{sec:detect_so_far}
 
-\par Using the catalogued \frb{}s from \textt{FRBCAT} mentioned in the start of the chapter, a brief summary of the \frb{}s population is given.
-Firstly, \autoref{fig:frbtime} summarizes the \frb{}s detected by various instruments over time. \autoref{fig:frbsky} shows the sky distribution of the \frb{}s. One-off events are marked by blue circles and repeaters are marked by red crosses. If \frb{}s are indeed extra-galactic, the sky distribution would be isotropic.
+\par Using the catalogued \frb{}s from \textt{FRBCAT} mentioned before, a brief summary of the \frb{}s population is given.
+Firstly, \autoref{fig:frbtime} summarizes the \frb{}s detected by various instruments over time. \autoref{fig:frbsky} shows the sky distribution of the \frb{}s.
+If \frb{}s are indeed extra-galactic, the sky distribution would be isotropic.
 
 \begin{figure}
 	\label{fig:frbtime}
+	\centering
+	\includegraphics[width=0.8\textwidth, keepaspectratio]{frb_pop.png}
 	\caption{Population of \frb{}s over time. The exponential trend is what drives \vf.}
 \end{figure}
 
@@ -111,21 +134,20 @@ Firstly, \autoref{fig:frbtime} summarizes the \frb{}s detected by various instru
 	\caption{Population of \frb{}s over sky. }
 \end{figure}
 
-\par Lastly, no introduction of \frb{}s is complete without rate calculations. With each survey for these signals, a rate of \frb{}s is computed in the units of per-day-per-sky to quantify the yield of the survey. This metric is rudimentary and shows how much is actually known about them. ~\autoref{tab:frbrates} captures the event rates published by various surveys.
+%\par Lastly, no introduction of \frb{}s is complete without rate calculations. With each survey for these signals, a rate of \frb{}s is computed in the units of per-day-per-sky to quantify the yield of the survey. This metric is rudimentary and shows how much is actually known about them. ~\autoref{tab:frbrates} captures the event rates published by various surveys.
 
-\begin{table}
-	\label{tab:frbrates}
-	\caption{\frb{}~ event rates with frequency band.}
+%\begin{table}
+	%\label{tab:frbrates}
+	%\caption{\frb{}~ event rates with frequency band.}
 
-\end{table}
+%\end{table}
 
 \section{Thesis outline}
-
 
 \subsection{VLITE}
 
 \par This study is a part of the \texttt{VLA Low Frequency Ionospheric and Transient Experiment (\vlite)}. 
-\vlite is a commensual observing system of the Karl Janksy Very Large Array radio telescope~\cite{vla} upon which \vf is based. 
+\vlite is a commensual observing system of the Karl G. Janksy Very Large Array radio telescope~(\url{https://science.nrao.edu/facilities/vla}) upon which \vf is based. 
 Hence before describing the outline, the \vlite system is described here.
 
 \par A selected subset of \vla antennas are fitted with low frequency receiver units at the casegrain feed. 
@@ -165,10 +187,10 @@ Each compute node houses nVIDIA Graphical Processing Units (GPUs) for all the si
 \subsection{Outline}
 
 \par The goal of the study is to establish and start a search campaign making use of the commensual observation system \vlite of the \vla radio observatory.
-With this in mind, a robust yet efficient realtime search pipeline was designed and coded (see~\autoref{chap:inst}).
-The data taken became a part of VLITE-Fast Pathfinder Survey (\vfpfs). The data is discussed in great detail in~\autoref{chap:data}.
+With this in mind, a robust yet efficient realtime search pipeline was designed and coded (see~\autoref{ch:inst}).
+The data taken became a part of VLITE-Fast Pathfinder Survey (\vfpfs). The data is discussed in great detail in~\autoref{ch:data}.
 A completeness analysis, in which pure random noise was sent through pipeline, is performed to test the noise response of the pipeline. In addition, artificial signals of interest were inserted into the pipeline for testing the pipeline in a controlled environment. 
-The data products yielded by \vfpfs and the controlled testing have been used to develop an Aritificial Intelligence (AI) which will be covered in~\autoref{chap:ml}.
+The data products yielded by \vfpfs and the controlled testing have been used to develop an Aritificial Intelligence (AI) which will be covered in~\autoref{ch:ml}.
 The resulting AI solution is used to vet through the entire \vfpfs dataset to identify any unknown signal missed previously. Results of the AI analysis are also reported in the same chapter. 
 
 
