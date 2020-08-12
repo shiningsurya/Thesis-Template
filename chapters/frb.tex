@@ -1,20 +1,20 @@
 \chapter{Fast Radio Bursts}\label{ch:frb}
 
 \par The domain of Radio Astronomy is full of surprises. 
-It all started with the serendiptious detection of \emph{a bright millisecond radio burst}~\cite{first_frb} in the archieval data which brought into light, the existence of short time-scale, extremely energetic radio signals, possibly originating from beyond the galaxy. 
-These signals are called \emph{Fast Radio Bursts (\frb{})} and the search for these signals forms the crux of this thesis.
+The serendipitous detection of \emph{a bright millisecond radio burst}~\cite{first_frb} in archival data from a pulsar search survey brought to light the existence of short, extremely energetic radio signals whose strong dispersion indicated a possible extragalactic origin. 
+These signals were dubbed \emph{Fast Radio Bursts} (\frb{}s) and the search for these signals forms the crux of this thesis.
 
-\par The first discovered \frb is the~\cite{lorimerburst} in $2001$, colloquially known as the \emph{Lorimer Burst}. 
-Many theory papers followed but there was no corroborative detection. In the lack of which, skeptisim arose~\cite{burke_doubt}. 
-Prior to that~\cite{old_m87_bursts} detected \frb-like pulses with \dm as high as $5\times 10^3$ \pc originating from \textt{M87}. So, these may very well have been the first detection of \frb~s but due to the limited time/frequency resolution, no substantiative evidence could be established. 
+\par The first \frb{} was discovered in $2001$ and is colloquially known as the the \empth{Lorimer Burst} after its discoverer~\cite{lorimerburst}. 
+Although many theory papers followed with possible mechanisms, the lack of a corroborative detection ultimately led to skepticism about the extraterrestrial (and/or extragalactic) origin of the signal~\cite{burke_doubt}. 
+Prior to that~\cite{old_m87_bursts} detected \frb-like pulses with \dm{} as high as $5\times 10^3$ \pc originating from \textt{M87}. So, these may very well have been the first detection of \frb~s but due to the limited time/frequency resolution, no substantative evidence could be established. 
 
-\par Astronomers were not wrong in their dubious nature. Their experience with another specie of signals called Perytons~\cite{perytons} justifies it. Named after the mystical hybrid bird, these signals were actually caused by the microwave on the observatory site. The premature opening of the microwave door shuts off the magnetron abruptly, which produces a dispersed-like signal which was then picked up by the radio telescope.
+\par Further confusion arose with the discovery or another species of signal, called Perytons~\cite{perytons} by their discoverer.  Named after the mystical hybrid bird, these signals had dispersion properties similar to \frb{}s but were actually caused by the microwave on the observatory site. The premature opening of the microwave door shuts off the magnetron abruptly, which produces a dispersed-like signal which was then picked up by the radio telescope.
 This put more shade on the celestial nature of the \emph{Lorimer Burst}.
 
-\par But then came as a surprise, ~\cite{danburst4} in $2016$ which reported $4$ such bursts and thus set in stone the existence of such species. 
-Now, four years and sophisticated advancements in observatory technologies later, the number of \frb{}s detected is in thousands. The details of this story will be discussed in \autoref{sec:detect_so_far}.
+\par But then came as a surprise, the discovery in $2016$~\cite{danburst4} of $4$ new bursts which set in stone the existence of such species. 
+Now, four years and many advancements in observational technology later, the number of \frb{}s detected is in the thousands. The details of this story will be discussed in \autoref{sec:detect_so_far}.
 
-\par Given the amount of shear energy emitted in these bursts, astronomers were not wrong in maintaining an innate assumption that these events were result of a cataclysmic event. And by the very nature of such events, \frb{}s were not expected to repeat. And then came as a surprise, \frb{121102} in $2012$, which repeated in time.
+\par Given the shear amount of energy emitted in these bursts, along with their seeming rarity, many theories invoked a cataclysmic event to explain \frb{}s. And by the very nature of such events, \frb{}s were not expected to repeat. So the discovery of multiple pulses from \frb{121102}, years after the initial detection, came as a surprise.
 Over the years since its discovery, \frb{121102} is perhaps the most studied \frb{} with observations done from meter wavelength to milli-meter wavelength. See~\cite{sptlier}.
 
 \par Astronomy wouldn't be full of surprises, if \frb{121102}~ was the only repeating \frb{}~ found. In $2019$,~\cite{chime_repeaters} found $4$ repeating \frb{}s (henceforth called repeaters) using the Canadian Hydrogen Intensity Mapping Experiment (CHIME) telescope which prompted a fresh set of theories to emerge to explain the same.
@@ -24,7 +24,7 @@ Over the years since its discovery, \frb{121102} is perhaps the most studied \fr
 
 \section{What are FRBs?}
 
-\par Before we go into \frb{}s. It is crucial to establish certain groundwork known in a radio astronomy setting. 
+\par Before we go into \frb{}s, it is crucial to establish certain groundwork known in a radio astronomy setting. 
 First being the data representation format widely used: filterbank in~\autoref{ssub:fb}. 
 Second being the phenomenon of dispersion which affects all the radio signals propagating through the space and reaching the radio telescope. 
 This will be covered in detail in~\autoref{ssec:dis}.
@@ -53,7 +53,7 @@ This phenomenon is called dispersion and is not just valid for white light (or, 
 Of course, the properties of the prism changes when going to a different band of electromagnetic spectrum. But, any part of the electromagnetic spectrum can get dispersed and its frequency components can get separated. And since different frequencies of visible light correspond to different colors, we see colors of a rainbow.
 
 \par Radio waves propagating in space also suffer the same fate.\emph{Prisms} here are plasma made of electrons in the space. 
-This plasma exists in the line of sight between the source and the observatory. A better understanding of the dispersion can be made by using hte filterbank representation. Dispersion causes progressively lower frequencies to receive the signal latter than their higher frequency counterpart. See fig.
+This plasma exists in the line of sight between the source and the observatory. A better understanding of the dispersion can be made by using the filterbank representation. Dispersion causes progressively lower frequencies to receive the signal latter than their higher frequency counterpart. See fig.
 
 \par The time difference (also known as dispersion smearing) is calculated with the~\ref{eq:dispersion}. The \dm appearing in the equation is called the Dispersion Measure which is a measure of the electron number density in the column along the line of sight.
 \begin{equation}
