@@ -3,7 +3,7 @@
 
 \par This chapter describes the Machine Learning (ML) / Artificial Intelligence (AI) system in the \vf which identifies triggers worthy of a closer look. First and foremost, the motivation is discussed in~\autoref{sec:coh}.
 The ML model is introduced and described in~\autoref{sec:ml}. 
-Lastly, the newly \emph{learnt} ML model is applied to the whole of \vfps and results are examined in~\autoref{sec:ml_vfps}.
+Lastly, the newly \emph{learnt} ML model is applied to the whole of \vfps~and results are examined in~\autoref{sec:ml_vfps}.
 
 \section {Coherent analysis}
 \label{sec:coh}
@@ -18,7 +18,7 @@ A \emph{coherent} analysis would boost the \sn~by $N$. The reason being the phas
 
 \par In addition to the \sn~boost, a \emph{coherent} analysis would also provide good localization capability.
 Given a set of relative phases, one can translate to geometric delays and from there geometric path differences from asrophysical sources.
-This ability is of great value since \frb~s are known to be originating from outside the galaxy by which small angular variations could lead to astronomically large separated distances due to large radii.
+This ability is of great value since \frb s are known to be originating from outside the galaxy by which small angular variations could lead to astronomically large separated distances due to large radii.
 
 \subsection{Coherent analysis with \vf}
 
@@ -51,13 +51,13 @@ The results from the training are showcased in~\autoref{ssub:training}.
 
 \label{ssub:dataset}
 
-\par Problem at hand is a \emph{binary classification} problem. 
+\par The problem at hand is a \emph{binary classification} problem. 
 Every input is to be mapped to one of the two classes, either the \texttt{TRUE} class or the \texttt{FALSE} class.
 Hence, the dataset used for training is so judiciously chosen such that it contains good representation of both the classes.
 
 \par Triggers from known radio pulsars with \sn $\geq 7$ constitute a part of the \texttt{TRUE} class.
 All the injected and received triggers also constitute the \texttt{TRUE} class.
-RFI is manually selected using the creiterion described in~\autoref{sec:rfi}.
+RFI is manually selected using the creiterion described in~\autoref{ssub:rfim}.
 The \dm{150} RFI is also selected and both form the \texttt{FALSE} class.
 The actual breakdown of the cardinalities are given in~\autoref{tab:dataset}.
 
@@ -114,7 +114,7 @@ The script which does the training is \url{https://github.com/shiningsurya/trish
 Interested readers are encouraged to read the code.
 
 \subsection{Training results}
-
+\label{ssub:training}
 \par The main training results are tabulated in~\autoref{tab:trainres}. 
 The learning curves are plotted in~\autoref{fig:lcurves}.
 The confusion matrices are tabulated in~\autoref{tab:traincfm}.
@@ -227,5 +227,5 @@ According to YMW16(\cite{ymw16}), the Galactic \dm~contribution is around $\sim 
 
 \section{Ending remarks}
 
-\par The AI solution discussed here can be perfected. Moreover, the end goal of this AI is for it to be incorporated into the \vf pipelien for realtime vetting of the model.
+\par The AI solution discussed here can be perfected. Moreover, the end goal of this AI is for it to be incorporated into the \vf pipeline for realtime vetting of the model.
 

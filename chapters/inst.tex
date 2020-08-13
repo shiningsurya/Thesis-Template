@@ -3,7 +3,7 @@
 
 \par This chapter covers in detail the various pieces of hardware/software which make \vf~possible. 
 As with any data processing/search pipeline, the design consists of various components which are intermediated by data buffers. 
-Such a design allows for modular component design wherein every component is assigned to be either producer or consumer depending on its position and makes it simplier. This practise is not novel in that it is knownas the \emph{producer-consumer} model.
+Such a design allows for modular component design wherein every component is assigned to be either producer or consumer depending on its position and makes it simplier. This practise is not novel in that it is known as the \emph{producer-consumer} model.
 
 \par A brief overview of the infrastructure is summarized in~\autoref{ssub:over}. 
 The pipeline is graphically described in~\autoref{fig:pipeline}. All the data products/formats are defined in~\autoref{sec:datap}.
@@ -39,7 +39,7 @@ In a realtime constrained pipeline, the datarates may not be consistent all the 
 Hence naturally, many intermdiate buffers are used in \vf~pipeline design.
 
 \par \vf makes use of \dada as an intermediate buffer technology. \dada is built on SYSV shared memory model thus makes use of linux system's kernels and shared memory infrastructure for offering buffering capability. 
-\dada codebase is in written in \cc for linux type machines. \dada is versatile that it can support the following modes:
+\dada codebase is in written in \cc~for linux type machines. \dada is versatile that it can support the following modes:
 \begin{itemize}
 \item Single producer - Single consumer (SPSC)
 \item Single producer - Multiple consumer (SPMC)
@@ -53,6 +53,7 @@ Header is defined as key value pair with key being a string and value being any 
 \autoref{fig:pipeline} shows \dada buffers as the concentric rings made of blocks.
 
 \section {Writer} 
+\label{sec:writer}
 \hfill \emph {The writer code is wholly contributed by Dr. Matthew T. Kerr}
 
 \par \vf is a commensually operated search pipeline. Raw baseband voltage data comes in \texttt{VLBI Data Interchange Format (VDIF)} packets over
@@ -60,7 +61,7 @@ Header is defined as key value pair with key being a string and value being any 
 
 \par The raw baseband data consists of two-polarizations, $64$MHz bandwidth real sampled at Nyquist sampling rate of $128$MHz. Writer captures these packets, checks for time ordering and writes into \dada buffer. Time integrity check is of paramount importance since all the following components assume a time continuous flow of data. 
 
-\par Incase writer finds that the incoming packets fail the time continuity check, it is designed to zero fill the packets in between so at least data is continuous in time. The causes for such are many. 
+\par In case writer finds that the incoming packets fail the time continuity check, it is designed to zero fill the packets in between so at least data is continuous in time. The causes for such are many. 
 Sometimes, the ethernet network load may be high, or sometimes, the receiving nodes CPU usage is high that it can't respond in time. 
 It has also been observed there are some nodes which are more suspectible to packet drops than other nodes. Such nodes are ignored until the underlying issue is resolved. 
 
@@ -122,14 +123,14 @@ In addition to the above collectives (parlance uesd by the HPC community to desc
 \par The broadcast operation is performed when one process has data (or message) which is sent to all the other processes. At the end of this operation, all processes have identical data. The reduction operation is performed when all processes have some data which is to combined (or reduced) by some operation. The reduced data is present in a pre-defined process called the \root process. 
 The process of coaddition is explained in~\autoref{ssub:coadd}. 
 
-\par \mpi also offers capability of tuning by the Multi Component Architecture (MCA). MCA helps you to configure the various runtime parameters of \mpi jobs from pre-defined options to increase the performance. The tuning options used are described in~\autoref{ssub:reduce}.
+\par \mpi~also offers capability of tuning by the Multi Component Architecture (MCA). MCA helps you to configure the various runtime parameters of \mpi jobs from pre-defined options to increase the performance. The tuning options used are described in~\autoref{ssub:reduce}.
 
 \subsection {Coaddition}
 \label{ssub:coadd}
 
 \par The operation of coaddition involves summation of the data from all the participating processes followed by a scaling. Naturally, the reduce operation with summation operator is a perfect fit for the summation step. 
 The scaling operation can then be performed locally. 
-The data is read from \dada buffer (which is written to by \pb). This data has been digitized to \nbit{} by \pb. 
+The data is read from \dada buffer (which is written to by \pb). This data has been digitized to \nbit{} by \texttt{process-baseband}. 
 The first operation of coaddition is to convert the \nbit{} data into \float~data. 
 This operation increases the memory footprint by four folds but prevents any overflows in reduce operation and is necessary. 
 Next comes the actual \mpi reduce call after which, the coadded filterbank data (in \float) is present in \root process.
@@ -137,11 +138,11 @@ The resultant \float~ is then re-digitized to \nbit{} and written to a \dada buf
 
 \par Before any reduction is performed, it is paramount to check if all the data are time-aligned. 
 This time alignment is checked by the \mjd timestamp of the first datum in the array. 
-The \root's timestamp is broadcasted to all the other processes which is then compared against the process's own \mjd timestamp. 
-If both the \mjd's match, actual filterbank data is used for reduction otherwise a zero-filled array with the same size as the actual filterbank data is used.
+The \texttt{ROOT} timestamp is broadcasted to all the other processes which is then compared against the process's own \mjd timestamp. 
+If both the \mjd s match, actual filterbank data is used for reduction otherwise a zero-filled array with the same size as the actual filterbank data is used.
 
-\par The scaling operation done after the \mpi reduce call requires the correct number of antennas which have participated in the collective with real data and not with zero data. 
-This is computed by another \mpi reduce operation which is done on a single integer set to $1$ if the process is participating with real data, otherwise set to $0$. This operation reduces the actual number of antennas which have contributed for the coaddition.
+\par The scaling operation done after the \mpi~reduce call requires the correct number of antennas which have participated in the collective with real data and not with zero data. 
+This is computed by another \mpi~reduce operation which is done on a single integer set to $1$ if the process is participating with real data, otherwise set to $0$. This operation reduces the actual number of antennas which have contributed for the coaddition.
 
 \par Coaddition is the major bottleneck of the pipeline and it is also the most computationally expensive step. 
 A typical gulp of the data is $8$ seconds which with a typical \nchan{4096}, \nbit{8}, and sampling time amounts to $10$ MB.
@@ -160,7 +161,7 @@ Consequently, choice of reduction algorithm was delibrated upon.
 The following is heavily relied on the seminal paper~\cite{raben}.
 
 \par The default \mpi algorithm for reduce is the binomial tree reduction. 
-The essence of this algorithm is that one process sends it's data and other process receives it and adds it with it's own data.
+The essence of this algorithm is that one process sends its data and other process receives it and adds it with its own data.
 This repeats until there is only one process. It is graphically visualized to be a binomial tree with individual node's data as the leaves and the reduced data as the root. 
 See~\autoref{fig:binreduce}.
 
@@ -232,14 +233,14 @@ The choice of Rabenseifner algorithm provides first aid to this issue. The linea
 \subsection{Bookkeeping}
 \label{ssub:bcast}
 
-\par The broadcast of \mjd is a crucial book keeping step. It ensures only time-continuous data goes down the pipeline. 
-As discussed above, this is achieved by \root keeping \mjd and other nodes comparing their own timestamp with it.
-This operation involves a broadcast of \float~ followed by simple logic where each process decides to send actual data or zero-filled data.
+\par The broadcast of \mjd~is a crucial book keeping step. It ensures only time-continuous data goes down the pipeline. 
+As discussed above, this is achieved by \texttt{ROOT} keeping \mjd~and other nodes comparing their own timestamp with it.
+This operation involves a broadcast of \float~followed by simple logic where each process decides to send actual data or zero-filled data.
 
 \par In the \texttt{Reduce\_numant} step, the number of antennas which have participated in the coaddition is computed.
 It is a reduce by sum operation where those processes which participated send one and those which didn't send zero.
-The resultant is stored in \root.
-it was observed that occasionally the the time required would shoot to impossibly large times causing pipeline failure.
+The resultant is stored in \texttt{ROOT}.
+It was observed that occasionally the the time required would shoot to impossibly large times causing pipeline failure.
 This is observed in~\autoref{fig:linearshot}.
 To alleviate this issue, \texttt{tcp} protocol use was dropped.
 
@@ -363,8 +364,9 @@ Then, for a trigger received, with some pointer arithmetic, a slice of filterban
 \end{itemize}
 
 \par The following only discuss the generation of \dbson~and trigger plot. 
-The entirity of classification is discussed in great detail in~\autoref{chap:ml}.
-Firstly, the bowtie plane is introduced. And
+The entirity of classification is discussed in great detail in~\autoref{ch:ml}.
+Firstly, the bowtie plane is introduced. And then, the de-dispersed filterbank is described. These two are image planes which fully characterize any trigger. 
+Infact, the ML strategy employed (~\autoref{ch:ml}) uses these image planes as input.
 
 \par The bowtie plane is computed using the Fast De-dispersion Measure Technique (FDMT,~\cite{fdmt}).
 The low frequency introduces large delays which make the FDMT algorithm extremely slow. 
@@ -402,7 +404,7 @@ This job is performed by Meta response. Meta data involves the following:
 
 \par This job is done by a Python server running on the login node. 
 This server listens to the mcast group to which voltage triggers are issued.
-For a voltage trigger, it outputs a \textt{metar} file as described in~\autoref{ssub:metar,tab:metar}.
+For a voltage trigger, it outputs a \textt{metar} file as described in~\autoref{ssub:metar}, and~\autoref{tab:metar}.
 
 \section {Data products}
 \label{sec:datap}
@@ -420,6 +422,7 @@ The definition of the file is given in~\autoref{tab:candfile}.
 		\begin{tabular}[c]{@{}l@{}}Type of\\ data\end{tabular} & \begin{tabular}[c]{@{}l@{}}Number of\\ fields\end{tabular} & Data                                                                                                                 \\ \midrule
 		\multirow{2}{*}{Pointing}                              & \multirow{2}{*}{2}                                         & Right Ascension in radians                                                                                           \\
 																													 &                                                            & Declination in radians                                                                                               \\
+						\midrule
 		\multirow{9}{*}{Candidate}                             & \multirow{9}{*}{9}                                         & Signal to Noise ratio of the candidate                                                                               \\
 																													 &                                                            & \begin{tabular}[c]{@{}l@{}}Index of the first sample of the signal since\\ the start of the observation\end{tabular} \\
 																																																									&                                                            & Time of the first sample of signal                                                                                   \\
